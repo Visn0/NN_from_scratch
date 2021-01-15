@@ -51,20 +51,10 @@ void showRAM()
    std::printf("\n====================================================");
    for (std::size_t i = 0; i < 8; i++)
    {
-      if (i == 3)
-      {
-         std::printf("\n");
-      }
-      
       std::printf("\n%02X | ", add);
       for (std::size_t j = 0; j < 16; j++, add++)
       {
          std::printf("%02X ", RAM.get(add));
-      }
-
-      if (i == 3)
-      {
-         std::printf("\n");
       }
    }
    std::printf("\n====================================================\n");

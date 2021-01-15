@@ -31,9 +31,9 @@
 //
 // Second row
 //
-10 - 6A
+10 - 6A - 22
 11 - Ship 3 shoot ¿Position?
-12 - 64
+12 - 64 - 62
 13 - Same as 11 - Different for floor enemies
 14 - 00
 15 - C6
@@ -43,33 +43,26 @@
 19 - Lateral Shooting ON - Always the same value
 1A - Lateral Shoot - 40 Left - 80 Right
 1B - Shooting cd - If 0, can shoot
-1C - Shooting bar - If overcharged, die
+1C - Shooting bar - If overcharged, player dies
 1D - 00
 1E - 88 - Player sprite - Changes when dying
-1F - FC - No changes
+1F - FC - FD
 
 //
 // Third row
 //
 20 - 02 - No changes
-// ¿Position of the enemy ships?
-/* 
-21 - A8
-22 - B9
-23 - 39
-24 - 29
-25 - 2A
-26 - B9
-*/
+21 - ¿Position of the enemy ships?
+22 - ¿Position of the enemy ships?
+23 - ¿Position of the enemy ships?
+24 - ¿Position of the enemy ships?
+25 - ¿Position of the enemy ships?
+26 - ¿Position of the enemy ships?
 27 - Position of the player when he did the last shoot
-28 - Changes with the level - ¿Level or sprite for enemies?
-     Level 1 - BC
-     Level 2 - C4
-     Level 3 - CC
-     Level 4 - D4
+28 - Changes with the level
 29 - FF - No changes
 2A - 00 - No changes
-2B - 19 - No changes
+2B - 19 - 91
 2C - Death animation of the ship 3
 2D - Enemies animation - Up and down
 2E - Same as 2C
@@ -78,24 +71,15 @@
 //
 // Fourth row
 //
-// Movement direction of the enemy ships - 40 Right - 80 Left
-/*
-30 - Ship 3
-31 - Ship 2
-32 - Ship 1
-*/
-// ¿¿??
-/*
-33 - 80
-34 - 80
-35 - 80
-*/
-// Enemie ship alive
-/*
-36 - Ship 3
-37 - Ship 2
-38 - Ship 1
-*/
+30 - Ship 3 - Movement direction of the enemy ships - 40 Right - 80 Left
+31 - Ship 2 - Movement direction of the enemy ships - 40 Right - 80 Left
+32 - Ship 1 - Movement direction of the enemy ships - 40 Right - 80 Left
+33 - 80 - ¿?
+34 - 80 - ¿?
+35 - 80 - ¿?
+36 - Ship 3 alive
+37 - Ship 2 alive
+38 - Ship 1 alive
 39 - BF - No changes
 3A - 00 - No changes 
 3B - 00 - No changes
@@ -107,79 +91,114 @@
 //
 // Fifth row
 //
-40 -
-41 -
-42 -
-43 -
-44 -
-45 -
-46 -
-47 -
-48 -
-49 -
-4A -
-4B -
-4C -
-4D -
-4E -
-4F -
+40 - 00 - No changes
+41 - FD - No changes
+42 - 80 When player shoots vertically
+43 - Player bullet y coordinate
+44 - Mothership coordinates
+45 - Mothership coordinates
+46 - Movement direction of the mother ship - 40 Right - 80 Left
+47 - Mothership animation - Up and down
+48 - Changes with the level
+49 - 00 - No changes
+4A - FD - No changes
+4B - Changes when enemy shoots
+4C - 00 - No changes
+4D - 00 - No changes
+4E - 00 - No changes
+4F - 00 - No changes
 
 //
 // Sixth row
 //
-50 -
-51 -
-52 -
-53 -
-54 -
-55 -
-56 -
-57 -
-58 -
-59 -
-5A -
-5B -
-5C -
-5D -
-5E -
-5F -
+50 - Coordinates?
+51 - Coordinates?
+52 - Changes when destroying enemy ships
+53 - FE
+54 - Changes when destroying enemy ships
+55 - FE
+56 - Changes when destroying enemy ships
+57 - FE
+58 - Changes when destroying enemy ships
+59 - FE
+5A - Changes when destroying enemy ships
+5B - FE
+5C - Player bullet x coordinate
+5D - Changes when destroying enemy ships
+5E - 00
+5F - 00
 
 //
 // Seventh row
 //
-60 -
-61 -
-62 -
-63 -
-64 -
-65 -
-66 -
-67 -
-68 -
-69 -
-6A -
-6B -
-6C -
-6D -
-6E -
-6F -
+60 - 00 - No changes
+61 - 00 - No changes
+62 - 00 - No changes
+63 - 50 - No changes
+64 - FE - No changes
+65 - Player remaining lives
+66 - Coordinates?
+67 - Coordinates?
+68 - Level
+69 - Enemy respawns remaining
+6A - Changes when destroying enemy ships
+6B - Coordinates?
+6C - 00 - No changes
+6D - 00 - No changes
+6E - FF - No changes
+6F - F8 - No changes
 
 //
 // Eighth row
 //
-70 -
-71 -
-72 -
-73 -
-74 -
-75 -
-76 -
-77 -
-78 -
-79 -
-7A -
-7B -
-7C -
-7D -
-7E -
-7F -
+70 - 00 - No changes
+71 - 00 - No changes
+72 - 40 - 80 - Direction
+73 - 00 - No changes
+74 - AC - 9A - Animation up and down
+75 - 00 - No changes
+76 - 00 - No changes
+77 - 00 - No changes
+78 - Movement direction of the ship 3 - 0F Right - F8 Left 
+79 - Movement direction of the ship 3 - FC Right - FB Left
+7A - Movement direction
+7B - FB - No changes
+7C - 40 - No changes
+7D - FB - No changes
+7E - Player horizontally shooting
+7F - Player horizontally shooting
+
+
+
+/////////////////////////////
+// Usefull RAM information //
+/////////////////////////////
+
+11 - Ship 3 shoot position?
+13 - Same as 11 - Different for floor enemies
+19 - Lateral Shooting ON - Always the same value
+1A - Lateral Shoot - 40 Left - 80 Right
+1B - Shooting cd - If 0, can shoot
+1C - Shooting bar - If overcharged, player dies
+21 - ¿Position of the enemy ships?
+22 - ¿Position of the enemy ships?
+23 - ¿Position of the enemy ships?
+24 - ¿Position of the enemy ships?
+25 - ¿Position of the enemy ships?
+26 - ¿Position of the enemy ships?
+30 - Ship 3 - Movement direction of the enemy ships - 40 Right - 80 Left
+31 - Ship 2 - Movement direction of the enemy ships - 40 Right - 80 Left
+32 - Ship 1 - Movement direction of the enemy ships - 40 Right - 80 Left
+3E - Changes when player shoots
+42 - 80 When player shoots vertically
+43 - Player bullet y coordinate
+4B - Changes when enemy shoots
+50 - Coordinates?
+51 - Coordinates?
+5C - Player bullet x coordinate
+66 - Coordinates?
+67 - Coordinates?
+6B - Coordinates?
+78 - Movement direction of the ship 3 - 0F Right - F8 Left 
+79 - Movement direction of the ship 3 - FC Right - FB Left
+7E - Player horizontally shooting - Not valid

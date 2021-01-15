@@ -20,9 +20,27 @@ int getBallX() {
    return alei.getRAM().get(99) + ((rand() % 3) - 1);
 }
 
-//void cls() { std::printf("\033[2J"); }
+void cls() { std::printf("\033[2J"); }
 
 /*
+double hex2dec(double hexd)
+{
+   std::string hex = std::to_string(hexd);
+    unsigned long result = 0;
+    for (int i=0; i<hex.length(); i++) {
+        if (hex[i]>=48 && hex[i]<=57)
+        {
+            result += (hex[i]-48)*pow(16,hex.length()-i-1);
+        } else if (hex[i]>=65 && hex[i]<=70) {
+            result += (hex[i]-55)*pow(16,hex.length( )-i-1);
+        } else if (hex[i]>=97 && hex[i]<=102) {
+            result += (hex[i]-87)*pow(16,hex.length()-i-1);
+        }
+    }
+    return result;
+}
+*/
+
 void showRAM()
 {
    const auto& RAM = alei.getRAM();
@@ -33,15 +51,24 @@ void showRAM()
    std::printf("\n====================================================");
    for (std::size_t i = 0; i < 8; i++)
    {
+      if (i == 3)
+      {
+         std::printf("\n");
+      }
+      
       std::printf("\n%02X | ", add);
       for (std::size_t j = 0; j < 16; j++, add++)
       {
          std::printf("%02X ", RAM.get(add));
       }
+
+      if (i == 3)
+      {
+         std::printf("\n");
+      }
    }
    std::printf("\n====================================================\n");
 }
-*/
 
 void writeRAM(int teclas[])
 {
@@ -77,7 +104,7 @@ float agentStep() {
 
    auto* keystate = SDL_GetKeyState(0);
 
-   //showRAM();
+   showRAM();
 
    int teclas[4];
    //
@@ -163,7 +190,7 @@ int main(int argc, char **argv) {
    // Main loop
    alei.act(PLAYER_A_FIRE);
    int step;
-   //cls();
+   cls();
    
    for (step = 0; 
         !alei.game_over() && step < maxSteps; 

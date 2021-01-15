@@ -1,0 +1,185 @@
+//////////////////////////
+// RAM DATA WITH DETAILS//
+//////////////////////////
+
+//
+// For the enemy ships, we will refer to them this way:
+// Ship 1 - Ship on top
+// Ship 2 - Ship in the middle
+// Ship 3 - Ship at the bottom - The one that shoots
+//
+
+// First row
+//
+00 - Score      
+01 - Score
+02 - Score
+03 - 00 - No changes
+04 - 00 - No changes
+05 - 00 - No changes
+06 - Score
+07 - Score
+08 - Score
+09 - 00 80 Pasa a 80 cada vez que mueres
+0A - 00 01 Pasa a 1 cuando acaba la partida
+0B - Mother ship colour
+0C - FE - No changes
+0D - 00 - No changes
+0E - 00 - No changes
+0F - 00 - No changes
+
+//
+// Second row
+//
+10 - 6A
+11 - Ship 3 shoot ¿Position?
+12 - 64
+13 - Same as 11 - Different for floor enemies
+14 - 00
+15 - C6
+16 - 00
+17 - 00
+18 - Lateral Shooting ON - Always the same value
+19 - Lateral Shooting ON - Always the same value
+1A - Lateral Shoot - 40 Left - 80 Right
+1B - Shooting cd - If 0, can shoot
+1C - Shooting bar - If overcharged, die
+1D - 00
+1E - 88 - Player sprite - Changes when dying
+1F - FC - No changes
+
+//
+// Third row
+//
+20 - 02 - No changes
+// ¿Position of the enemy ships?
+/* 
+21 - A8
+22 - B9
+23 - 39
+24 - 29
+25 - 2A
+26 - B9
+*/
+27 - Position of the player when he did the last shoot
+28 - Changes with the level - ¿Level or sprite for enemies?
+     Level 1 - BC
+     Level 2 - C4
+     Level 3 - CC
+     Level 4 - D4
+29 - FF - No changes
+2A - 00 - No changes
+2B - 19 - No changes
+2C - Death animation of the ship 3
+2D - Enemies animation - Up and down
+2E - Same as 2C
+2F - Same as 2D
+
+//
+// Fourth row
+//
+// Movement direction of the enemy ships - 40 Right - 80 Left
+/*
+30 - Ship 3
+31 - Ship 2
+32 - Ship 1
+*/
+// ¿¿??
+/*
+33 - 80
+34 - 80
+35 - 80
+*/
+// Enemie ship alive
+/*
+36 - Ship 3
+37 - Ship 2
+38 - Ship 1
+*/
+39 - BF - No changes
+3A - 00 - No changes 
+3B - 00 - No changes
+3C - 00 - No changes
+3D - ¿?
+3E - Changes when player shoots
+3F - Changes when an enemy dies
+
+//
+// Fifth row
+//
+40 -
+41 -
+42 -
+43 -
+44 -
+45 -
+46 -
+47 -
+48 -
+49 -
+4A -
+4B -
+4C -
+4D -
+4E -
+4F -
+
+//
+// Sixth row
+//
+50 -
+51 -
+52 -
+53 -
+54 -
+55 -
+56 -
+57 -
+58 -
+59 -
+5A -
+5B -
+5C -
+5D -
+5E -
+5F -
+
+//
+// Seventh row
+//
+60 -
+61 -
+62 -
+63 -
+64 -
+65 -
+66 -
+67 -
+68 -
+69 -
+6A -
+6B -
+6C -
+6D -
+6E -
+6F -
+
+//
+// Eighth row
+//
+70 -
+71 -
+72 -
+73 -
+74 -
+75 -
+76 -
+77 -
+78 -
+79 -
+7A -
+7B -
+7C -
+7D -
+7E -
+7F -

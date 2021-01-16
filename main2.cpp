@@ -29,7 +29,17 @@ void printVector(VecDouble_t const &vec)
     {
         std::cout << " " << e;
     }
-    std::cout << ")\n";
+    std::cout << " )\n";
+}
+
+void printMatrix(MatDouble_t const &mat)
+{
+    std::cout << ">\n";
+    for (auto const &vec : mat)
+    {
+        printVector(vec);
+    }
+    std::cout << ">\n";
 }
 
 double randDouble(double min, double max)
@@ -62,7 +72,7 @@ struct CutreNet_t
             for (auto &v : layer_w)
             {
                 v.resize(input_size + 1); // +threshold
-                fillVectorRandom(v, -10.0, 10.0);
+                fillVectorRandom(v, -100.0, 100.0);
             }
             m_layers.push_back(layer_w);
             input_size = *it;
@@ -87,63 +97,7 @@ struct CutreNet_t
         }
         return result;
     }
-
-    VecDouble_t subtract(VecDouble_t const &a, VecDouble_t const &b)
-    {
-        VecDouble_t result(a.size(), 0.0);
-
-        for (std::size_t i = 0; i < a.size(); ++i)
-        {
-            result[i] = a[i] - b[i];
-        }
-        return result;
-    }
-
-    MatDouble_t subtract(MatDouble_t const &a, MatDouble_t const &b)
-    {
-        MatDouble_t result;
-
-        for (std::size_t i = 0; i < a.size(); ++i)
-        {
-            result.push_back(subtract(a[i], b[i]));
-        }
-        return result;
-    }
-
-    VecDouble_t multiply(VecDouble_t const &a, VecDouble_t const &b)
-    {
-        VecDouble_t result(a.size(), 0.0);
-
-        for (std::size_t i = 0; i < a.size(); ++i)
-        {
-            result[i] = a[i] * b[i];
-        }
-        return result;
-    }
-
-    MatDouble_t copy_layer(MatDouble_t const &from)
-    {
-        MatDouble_t result(from.size());
-        for (std::size_t i = 0; i < result.size(); ++i)
-        {
-            result[i].resize(from[i].size());
-            std::copy(from[i].begin(), from[i].end(), result.begin());
-        }
-        return result;
-    }
-
-    VecDouble_t scalar(VecDouble_t const &a, int const &s)
-    {
-        VecDouble_t result(a.size(), 0.0);
-
-        for (std::size_t i = 0; i < a.size(); ++i)
-        {
-            result[i] = a[i] * s;
-        }
-        return result;
-    }
-
-    constexpr auto sigmoid(auto x) const
+    double sigmoid(double x) const
     {
         return 1 / (1 + std::exp(-x));
     }
@@ -158,7 +112,7 @@ struct CutreNet_t
         return result;
     }
 
-    VecDouble_t sigmoid_derivative(VecDouble_t const &v) const
+    VecDouble_t sigmoid_derivative(VecDouble_t const &v)
     {
         VecDouble_t result(v);
 
@@ -168,15 +122,6 @@ struct CutreNet_t
             e *= (1 - e);
         }
         return result;
-    }
-
-    MatDouble_t gradient(VecDouble_t const &a, VecDouble_t const &deltas, double const &lr)
-    {
-        MatDouble_t result;
-        for (auto delta : deltas)
-        {
-            result.push_back(scalar(a, delta * lr));
-        }
     }
 
     VecDouble_t feedforward(VecDouble_t const &x) const
@@ -194,6 +139,48 @@ struct CutreNet_t
         return result;
     }
 
+    VecDouble_t calculate_delta(VecDouble_t const &a, VecDouble_t const &y)
+    {
+        VecDouble_t result(a.size(), 0.0);
+        for (std::size_t i = 0; i < a.size(); ++i)
+        {
+            double sign = sigmoid(a[i]);
+            double deltax = 2 * (a[i] - y[i]) * (sign * (1.0 - sign));
+            result[i] = deltax;
+        }
+        return result;
+    }
+
+    VecDouble_t calculate_next_delta(VecDouble_t const &a, MatDouble_t const &last_layer, VecDouble_t const &delta)
+    {
+        VecDouble_t result(last_layer.size(), 0.0);
+        for (size_t wi{0}; wi < last_layer.size(); ++wi)
+        {
+            double sign = sigmoid(a[wi]);
+            double x = delta[wi] * (sign * (1.0 - sign));
+            for (auto &wij : last_layer[wi])
+            {
+                result[wi] += wij * x;
+            }
+            result[wi] /= last_layer[wi].size();
+        }
+        return result;
+    }
+
+    void correct_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr)
+    {
+        for (size_t wi{0}; wi < layer.size(); ++wi)
+        {
+            double grad = a[wi] * delta[wi] * lr;
+            std::cout << "--Grad " << wi << " \t\t" << grad << std::endl;
+            for (int wij = 0; wij < layer[wi].size(); ++wij)
+            {
+                layer[wi][wij] = layer[wi][wij] - grad;
+                //std::cout << layer[wi][wij] << std::endl;
+            }
+        }
+    }
+
     void train(MatDouble_t const &X, VecDouble_t const &y, double const &lr)
     {
         for (size_t i{0}; i < X.size(); ++i) // iterations of train
@@ -202,61 +189,75 @@ struct CutreNet_t
                                   VecDouble_t>> // output through activation function (a)
                 outputs;
 
-            std::cout << "#################" << std::endl;
+            std::cout << "\n#################" << std::endl;
             std::cout << "Iteration " << i << std::endl;
-            std::cout << "#################" << std::endl;
+            std::cout << "~~~~~~~~~~~~~~" << std::endl;
+
+            std::cout << "NETWORK \n";
+            for (size_t wi{0}; wi < m_layers.size(); ++wi)
+            {
+                printMatrix(m_layers[wi]);
+            }
 
             // feedforward
+            std::cout << "~~~~~~~~~~~~~~~\n";
+            std::cout << "FORWARD \n";
+            std::cout << "~~~~~~~~~~~~~~~\n";
             VecDouble_t result(X[i]);
-            for (auto const &Wi : m_layers)
+            for (size_t wi{0}; wi < m_layers.size(); ++wi)
             {
                 result.resize(result.size() + 1);
                 std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
                 result[0] = 1.0;
 
-                VecDouble_t z = multiplyT(result, Wi);
+                VecDouble_t z = multiplyT(result, m_layers[wi]);
                 result = sigmoid(z);
                 outputs.push_back(std::make_pair(z, result));
+
+                std::cout << "Output " << wi << "\t";
+                printVector(result);
             }
 
-            std::vector<VecDouble_t> deltas;
+            std::cout << "~~~~~~~~~~~~~~~\n";
+            std::cout << "BACKPROPAGATION \n";
+            std::cout << "~~~~~~~~~~~~~~~\n";
             int L = m_layers.size() - 1;
             VecDouble_t z = outputs[L].first;
             VecDouble_t a = outputs[L].second;
 
-            // deltas.push_back(multiply(scalar(subtract(a, y), 2), sigmoid_derivative(a)));
-            // printVector(deltas[0]);
+            VecDouble_t delta = calculate_delta(a, y);
+            std::cout << "Delta " << L << "\t\t";
+            printVector(delta);
 
-            //MatDouble_t grad = gradient(a, deltas[0], lr);
+            // save last layer to use the original weights in next layer
+            MatDouble_t last_layer(m_layers[L].size());
+            for (std::size_t wi = 0; wi < m_layers[L].size(); ++wi)
+            {
+                VecDouble_t w(m_layers[L][wi]);
+                last_layer[wi] = w;
+            }
+            //std::cout << "Last layer \n";
+            //printMatrix(m_layers[L]);
 
-            //MatDouble_t last_layer;
-            // for (std::size_t i = 0; i < last_layer.size(); ++i)
-            // {
-            //     last_layer[i].resize(m_layers[L][i].size());
-            //     //std::copy(m_layers[L][i].begin(), m_layers[L][i].end(), last_layer.begin());
-            //     //for (std::size_t i = 0; i < last_layer.size(); ++i)
-            // }
-            //MatDouble_t last_layer = copy_layer(m_layers[L]); // to use the original weights in next layer
+            correct_weights(m_layers[L], a, delta, lr);
+            //printMatrix(m_layers[L]);
 
-            // m_layers[L] = subtract(m_layers[L], grad);
+            for (int l = L - 1; l > -1; --l)
+            {
+                z = outputs[l].first;
+                a = outputs[l].second;
+                delta = calculate_next_delta(a, last_layer, delta);
+                std::cout << "Delta " << l << "\t\t";
+                printVector(delta);
 
-            // for (size_t l = L - 1; l > -1; --l)
-            // {
-            //     z = outputs[l].first;
-            //     a = outputs[l].second;
-            //     deltas[0] = (multiply(multiplyT(deltas[0], last_layer), sigmoid_derivative(a)));
-            //     last_layer = copy_layer(m_layers[l]);
-
-            //     grad = gradient(a, deltas[0], lr);
-            //     m_layers[l] = subtract(m_layers[l], grad);
-            // }
-
-            // for (auto &out : outputs)
-            // {
-            //     printVector(out.first);
-            //     printVector(out.second);
-            //     std::cout << "--------------------" << std::endl;
-            // }
+                last_layer = MatDouble_t(m_layers[l].size());
+                for (std::size_t wi = 0; wi < m_layers[l].size(); ++wi)
+                {
+                    VecDouble_t w(m_layers[l][wi]);
+                    last_layer[wi] = w;
+                }
+                correct_weights(m_layers[l], a, delta, lr);
+            }
         }
     }
 
@@ -315,18 +316,20 @@ void run()
     // }
 
     CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
+    //std::cout << evaluateNet(net, g_X, g_y) << std::endl;
     net.train(g_X, g_y, 0.1);
+    std::cout << evaluateNet(net, g_X, g_y) << std::endl;
 }
 
 int main()
 {
-    // try
-    // {
-    //     run();
-    // }
-    // catch (std::exception &e)
-    // {
-    //     std::cout << "[EXCEPTION]: " << e.what() << std::endl;
-    // }
-    // return 0;
+    try
+    {
+        run();
+    }
+    catch (std::exception &e)
+    {
+        std::cout << "[EXCEPTION]: " << e.what() << std::endl;
+    }
+    return 0;
 }

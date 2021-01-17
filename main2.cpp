@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <random>
 #include <cmath>
+#include <fstream>
 
 // x (........)
 
@@ -21,6 +22,11 @@
 
 using VecDouble_t = std::vector<double>;      // = weight conection
 using MatDouble_t = std::vector<VecDouble_t>; // = layer
+
+
+MatDouble_t g_X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
+VecDouble_t g_y{0.0, 1.0, 1.0, 0.0};
+
 
 void printVector(VecDouble_t const &vec)
 {
@@ -145,7 +151,7 @@ struct CutreNet_t
         for (std::size_t i = 0; i < a.size(); ++i)
         {
             double sign = sigmoid(a[i]);
-            double deltax = 2 * (sign - y) * (sign * (1.0 - sign));
+            double deltax = 2 * (a[i] - y); //(sign - y) * (sign * (1.0f - sign));
             result[i] = deltax;
         }
         return result;
@@ -193,7 +199,10 @@ struct CutreNet_t
 
     void train(MatDouble_t const &X, VecDouble_t const &y, double const &lr)
     {
-        for (size_t epoch = 0; epoch < 50; ++epoch)
+        std::ofstream myfile;
+        myfile.open("example.csv");
+        
+        for (size_t epoch = 0; epoch < 5000; ++epoch)
         {
             std::cout << "\n####################################################" << std::endl;
             std::cout << "EPOCH: " << epoch << std::endl;
@@ -287,12 +296,15 @@ struct CutreNet_t
                     }
                 }
             }
-            std::cout << evaluateNet(X, y) / y.size() << std::endl;
+            double error = evaluateNet(X, y) / y.size();
+            std::cout << error << std::endl;
+            myfile << error << "\n";
+            
         }
-        
+        myfile.close();
     }
 
-    double evaluateNet( MatDouble_t const &X, VecDouble_t const &y)
+    double evaluateNet(MatDouble_t const &X, VecDouble_t const &y)
     {
         assert(X.size() == y.size());
 
@@ -310,9 +322,6 @@ struct CutreNet_t
 private:
     std::vector<MatDouble_t> m_layers;
 };
-
-MatDouble_t g_X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
-VecDouble_t g_y{0.0, 1.0, 1.0, 0.0};
 
 auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
 {
@@ -339,15 +348,6 @@ auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
 
 void run()
 {
-    MatDouble_t products;
-    VecDouble_t result;
-    for (double i = 1.0; i < 50; i += 0.5)
-    {
-        VecDouble_t line{i, i + 0.1};
-        products.push_back(line);
-        result.push_back(i * (i + 0.1));
-    }
-
     // auto net = random_train(products, result, 10000);
 
     // for (std::size_t i{0}; i < products.size(); ++i)
@@ -357,9 +357,9 @@ void run()
     //     std::cout << h[0] << " " << result[i] << std::endl;
     // }
 
-    CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
+    CutreNet_t net{2, 2, 1}; // input_size, 1st layer_size, .. , output_layer_size
     //std::cout << evaluateNet(net, g_X, g_y) << std::endl;
-    net.train(g_X, g_y, 1);
+    net.train(g_X, g_y, 0.001);
     std::cout << net.evaluateNet(g_X, g_y) / g_y.size() << std::endl;
 }
 

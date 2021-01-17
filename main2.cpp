@@ -45,7 +45,7 @@ void printMatrix(MatDouble_t const &mat)
 double randDouble(double min, double max)
 {
     static std::random_device dev;
-    static std::mt19937 rng(dev()); // random number generator
+    static std::mt19937 rng(0); //dev()); // random number generator
     static std::uniform_real_distribution<double> dist(min, max);
     return dist(rng);
 }
@@ -72,7 +72,7 @@ struct CutreNet_t
             for (auto &v : layer_w)
             {
                 v.resize(input_size + 1); // +threshold
-                fillVectorRandom(v, -100.0, 100.0);
+                fillVectorRandom(v, -10.0, 10.0);
             }
             m_layers.push_back(layer_w);
             input_size = *it;
@@ -99,7 +99,7 @@ struct CutreNet_t
     }
     double sigmoid(double x) const
     {
-        return 1 / (1 + std::exp(-x));
+        return 1.0 / (1.0 + std::exp(-x));
     }
 
     VecDouble_t sigmoid(VecDouble_t const &v) const
@@ -139,43 +139,53 @@ struct CutreNet_t
         return result;
     }
 
-    VecDouble_t calculate_delta(VecDouble_t const &a, VecDouble_t const &y)
+    VecDouble_t calculate_delta(VecDouble_t const &a, double const &y)
     {
         VecDouble_t result(a.size(), 0.0);
         for (std::size_t i = 0; i < a.size(); ++i)
         {
             double sign = sigmoid(a[i]);
-            double deltax = 2 * (a[i] - y[i]) * (sign * (1.0 - sign));
+            double deltax = 2 * (sign - y) * (sign * (1.0 - sign));
             result[i] = deltax;
         }
         return result;
     }
 
-    VecDouble_t calculate_next_delta(VecDouble_t const &a, MatDouble_t const &last_layer, VecDouble_t const &delta)
+    bool checksize(int a, int b)
     {
-        VecDouble_t result(last_layer.size(), 0.0);
-        for (size_t wi{0}; wi < last_layer.size(); ++wi)
+        if (a != b)
         {
-            double sign = sigmoid(a[wi]);
-            double x = delta[wi] * (sign * (1.0 - sign));
-            for (auto &wij : last_layer[wi])
+            std::cout << "Different size!!" << std::endl;
+            return false;
+        }
+        return true;
+    }
+
+    VecDouble_t calculate_next_delta(VecDouble_t const &a, MatDouble_t const &last_layer, VecDouble_t const &deltas)
+    {
+        VecDouble_t result(last_layer[0].size(), 0.0);
+        for (size_t i{0}; i < last_layer[0].size(); ++i) // iterate through previous layer neurons (by columns)
+        {
+            double sign = sigmoid(a[i]);
+            double derivsign = (sign * (1.0 - sign));
+            for (size_t j{0}; j < last_layer.size(); ++j) // iterate over each weight of the neuron (same size as deltas)
             {
-                result[wi] += wij * x;
+                result[i] += deltas[j] * last_layer[j][i];
             }
-            result[wi] /= last_layer[wi].size();
+            result[i] *= derivsign;
         }
         return result;
     }
 
     void correct_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr)
     {
-        for (size_t wi{0}; wi < layer.size(); ++wi)
+        for (size_t i{0}; i < layer.size(); ++i)
         {
-            double grad = a[wi] * delta[wi] * lr;
-            std::cout << "--Grad " << wi << " \t\t" << grad << std::endl;
-            for (int wij = 0; wij < layer[wi].size(); ++wij)
+            for (int j = 0; j < layer[0].size(); ++j)
             {
-                layer[wi][wij] = layer[wi][wij] - grad;
+                double grad = a[j] * delta[i] * lr;
+                layer[i][j] = layer[i][j] - grad;
+                std::cout << "--Grad " << i << " " << j << " \t\t" << grad << std::endl;
                 //std::cout << layer[wi][wij] << std::endl;
             }
         }
@@ -183,82 +193,118 @@ struct CutreNet_t
 
     void train(MatDouble_t const &X, VecDouble_t const &y, double const &lr)
     {
-        for (size_t i{0}; i < X.size(); ++i) // iterations of train
+        for (size_t epoch = 0; epoch < 50; ++epoch)
         {
-            std::vector<std::pair<VecDouble_t,  // raw output (z)
-                                  VecDouble_t>> // output through activation function (a)
-                outputs;
-
-            std::cout << "\n#################" << std::endl;
-            std::cout << "Iteration " << i << std::endl;
-            std::cout << "~~~~~~~~~~~~~~" << std::endl;
-
-            std::cout << "NETWORK \n";
-            for (size_t wi{0}; wi < m_layers.size(); ++wi)
+            std::cout << "\n####################################################" << std::endl;
+            std::cout << "EPOCH: " << epoch << std::endl;
+            std::cout << "####################################################" << std::endl;
+            for (size_t i{0}; i < X.size(); ++i) // iterations of train
             {
-                printMatrix(m_layers[wi]);
-            }
+                std::vector<std::pair<VecDouble_t,  // raw output (z)
+                                      VecDouble_t>> // output through activation function (a)
+                    outputs;
 
-            // feedforward
-            std::cout << "~~~~~~~~~~~~~~~\n";
-            std::cout << "FORWARD \n";
-            std::cout << "~~~~~~~~~~~~~~~\n";
-            VecDouble_t result(X[i]);
-            for (size_t wi{0}; wi < m_layers.size(); ++wi)
-            {
-                result.resize(result.size() + 1);
-                std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
-                result[0] = 1.0;
+                std::cout << "\n#################" << std::endl;
+                std::cout << "Iteration " << i << std::endl;
+                std::cout << "~~~~~~~~~~~~~~" << std::endl;
 
-                VecDouble_t z = multiplyT(result, m_layers[wi]);
-                result = sigmoid(z);
-                outputs.push_back(std::make_pair(z, result));
+                std::cout << "NETWORK \n";
+                for (size_t wi{0}; wi < m_layers.size(); ++wi)
+                {
+                    printMatrix(m_layers[wi]);
+                }
 
-                std::cout << "Output " << wi << "\t";
+                // feedforward
+                std::cout << "~~~~~~~~~~~~~~~\n";
+                std::cout << "FORWARD \n";
+                std::cout << "~~~~~~~~~~~~~~~\n";
+                VecDouble_t result(X[i]);
+                std::cout << "Input \t";
                 printVector(result);
-            }
+                std::cout << "Expected \t" << y[i] << "\n";
+                //printVector(y);
+                for (size_t wi{0}; wi < m_layers.size(); ++wi)
+                {
+                    result.resize(result.size() + 1);
+                    std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
+                    result[0] = 1.0;
 
-            std::cout << "~~~~~~~~~~~~~~~\n";
-            std::cout << "BACKPROPAGATION \n";
-            std::cout << "~~~~~~~~~~~~~~~\n";
-            int L = m_layers.size() - 1;
-            VecDouble_t z = outputs[L].first;
-            VecDouble_t a = outputs[L].second;
+                    VecDouble_t z = multiplyT(result, m_layers[wi]);
+                    result = sigmoid(z);
+                    outputs.push_back(std::make_pair(z, result));
 
-            VecDouble_t delta = calculate_delta(a, y);
-            std::cout << "Delta " << L << "\t\t";
-            printVector(delta);
+                    std::cout << "Raw " << wi << "\t";
+                    printVector(z);
+                    std::cout << "Output " << wi << "\t";
+                    printVector(result);
+                }
 
-            // save last layer to use the original weights in next layer
-            MatDouble_t last_layer(m_layers[L].size());
-            for (std::size_t wi = 0; wi < m_layers[L].size(); ++wi)
-            {
-                VecDouble_t w(m_layers[L][wi]);
-                last_layer[wi] = w;
-            }
-            //std::cout << "Last layer \n";
-            //printMatrix(m_layers[L]);
+                std::cout << "~~~~~~~~~~~~~~~\n";
+                std::cout << "BACKPROPAGATION \n";
+                std::cout << "~~~~~~~~~~~~~~~\n";
+                int L = m_layers.size() - 1;
+                VecDouble_t z = outputs[L].first;
+                VecDouble_t a = outputs[L].second;
 
-            correct_weights(m_layers[L], a, delta, lr);
-            //printMatrix(m_layers[L]);
-
-            for (int l = L - 1; l > -1; --l)
-            {
-                z = outputs[l].first;
-                a = outputs[l].second;
-                delta = calculate_next_delta(a, last_layer, delta);
-                std::cout << "Delta " << l << "\t\t";
+                VecDouble_t delta = calculate_delta(z, y[i]);
+                std::cout << "Delta " << L << "\t\t";
                 printVector(delta);
 
-                last_layer = MatDouble_t(m_layers[l].size());
-                for (std::size_t wi = 0; wi < m_layers[l].size(); ++wi)
+                // save last layer to use the original weights in next layer
+                MatDouble_t last_layer(m_layers[L].size());
+                for (std::size_t wi = 0; wi < m_layers[L].size(); ++wi)
                 {
-                    VecDouble_t w(m_layers[l][wi]);
+                    VecDouble_t w(m_layers[L][wi]);
                     last_layer[wi] = w;
                 }
-                correct_weights(m_layers[l], a, delta, lr);
+                //std::cout << "Last layer \n";
+                //printMatrix(m_layers[L]);
+
+                correct_weights(m_layers[L], outputs[L - 1].second, delta, lr);
+                //printMatrix(m_layers[L]);
+
+                for (int l = L - 1; l > -1; --l)
+                {
+                    z = outputs[l].first;
+                    a = outputs[l].second;
+                    delta = calculate_next_delta(z, last_layer, delta);
+                    std::cout << "Delta " << l << "\t\t";
+                    printVector(delta);
+
+                    last_layer = MatDouble_t(m_layers[l].size());
+                    for (std::size_t wi = 0; wi < m_layers[l].size(); ++wi)
+                    {
+                        VecDouble_t w(m_layers[l][wi]);
+                        last_layer[wi] = w;
+                    }
+                    if (l == 0)
+                    {
+                        correct_weights(m_layers[l], X[i], delta, lr);
+                    }
+                    else
+                    {
+                        correct_weights(m_layers[l], outputs[l - 1].second, delta, lr);
+                    }
+                }
             }
+            std::cout << evaluateNet(X, y) / y.size() << std::endl;
         }
+        
+    }
+
+    double evaluateNet( MatDouble_t const &X, VecDouble_t const &y)
+    {
+        assert(X.size() == y.size());
+
+        double error{0};
+        for (std::size_t i{0}; i < y.size(); ++i)
+        {
+            auto h = feedforward(X[i]);
+            double e = (h[0] - y[i]) * (h[0] - y[i]);
+            //std::cout << "Error " << e << std::endl;
+            error += e;
+        }
+        return error;
     }
 
 private:
@@ -268,30 +314,17 @@ private:
 MatDouble_t g_X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
 VecDouble_t g_y{0.0, 1.0, 1.0, 0.0};
 
-double evaluateNet(CutreNet_t const &net, MatDouble_t const &X, VecDouble_t const &y)
-{
-    assert(X.size() == y.size());
-
-    double error{0};
-    for (std::size_t i{0}; i < y.size(); ++i)
-    {
-        auto h = net.feedforward(X[i]);
-        error += (h[0] - y[i]) * (h[0] - y[i]);
-    }
-    return error;
-}
-
 auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
 {
     CutreNet_t bestNet{2, 3, 1};
-    double bestError{evaluateNet(bestNet, X, y)};
+    double bestError{bestNet.evaluateNet(X, y)};
     std::cout << "Iter 0 \t"
               << "Error: " << bestError << std::endl;
 
     for (uint32_t iter{0}; iter < maxiter; ++iter)
     {
         CutreNet_t newNet{2, 3, 1};
-        double error{evaluateNet(newNet, X, y)};
+        double error{newNet.evaluateNet(X, y)};
 
         if (error < bestError)
         {
@@ -306,19 +339,28 @@ auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
 
 void run()
 {
-    // auto net = random_train(g_X, g_y, 10000);
+    MatDouble_t products;
+    VecDouble_t result;
+    for (double i = 1.0; i < 50; i += 0.5)
+    {
+        VecDouble_t line{i, i + 0.1};
+        products.push_back(line);
+        result.push_back(i * (i + 0.1));
+    }
 
-    // for (std::size_t i{0}; i < g_X.size(); ++i)
+    // auto net = random_train(products, result, 10000);
+
+    // for (std::size_t i{0}; i < products.size(); ++i)
     // {
-    //     auto h = net.feedforward(g_X[i]);
-    //     printVector(g_X[i]);
-    //     std::cout << h[0] << " " << g_y[i] << std::endl;
+    //     auto h = net.feedforward(products[i]);
+    //     //printVector(products[i]);
+    //     std::cout << h[0] << " " << result[i] << std::endl;
     // }
 
     CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
     //std::cout << evaluateNet(net, g_X, g_y) << std::endl;
-    net.train(g_X, g_y, 0.1);
-    std::cout << evaluateNet(net, g_X, g_y) << std::endl;
+    net.train(g_X, g_y, 1);
+    std::cout << net.evaluateNet(g_X, g_y) / g_y.size() << std::endl;
 }
 
 int main()

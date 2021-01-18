@@ -217,7 +217,7 @@ struct CutreNet_t
             layer[i][0] = layer[i][0] - grad;
             print("--Grad", i, 0, " \t\t", grad, "\n");
             // correct weights
-            for (int j = 1; j < layer[0].size(); ++j)
+            for (std::size_t j = 1; j < layer[0].size(); ++j)
             {
                 grad = a[j - 1] * delta[i] * lr;
                 layer[i][j] = layer[i][j] - grad;

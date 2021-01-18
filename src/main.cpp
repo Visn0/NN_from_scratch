@@ -1,4 +1,4 @@
-#include "globals.h"
+#include "utils.h"
 #include "net_t.h"
 
 MatDouble_t X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};

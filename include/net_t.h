@@ -11,10 +11,10 @@
 #include <cmath>
 #include <fstream>
 
-#include "globals.h"
+#include "utils.h"
 
 class Net_t {
-    
+
     public:
         // Constructor:
         //  layers is a list, where each parameter indicates the number of neurons per layer.

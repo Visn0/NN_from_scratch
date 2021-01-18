@@ -1,3 +1,6 @@
+#ifndef _GLOBALS_H_
+#define _GLOBALS_H_
+
 #include <iostream>
 #include <vector>
 #include <cstdint>
@@ -8,15 +11,18 @@
 #include <cmath>
 #include <fstream>
 
-#include "globals.h"
+using VecDouble_t = std::vector<double>;      // = weight conection
+using MatDouble_t = std::vector<VecDouble_t>; // = layer
+
+#include "utils.h"
 
 template <class T>
-void print(T const &t)
+static void print(T const &t)
 {
     std::cout << " " << t;
 }
 
-void print(VecDouble_t const &v)
+static void print(VecDouble_t const &v)
 {
     std::cout << "(";
     for (auto const &e : v)
@@ -27,13 +33,13 @@ void print(VecDouble_t const &v)
 }
 
 template <class T, class... Args>
-void print(T const &t, Args... args) // recursive variadic function
+static void print(T const &t, Args... args) // recursive variadic function
 {
     print(t);
     print(args...);
 }
 
-void printVector(VecDouble_t const &vec)
+static void printVector(VecDouble_t const &vec)
 {
     std::cout << "(";
     for (auto const &e : vec)
@@ -43,7 +49,7 @@ void printVector(VecDouble_t const &vec)
     std::cout << " )\n";
 }
 
-void printMatrix(MatDouble_t const &mat)
+static void printMatrix(MatDouble_t const &mat)
 {
     std::cout << ">\n";
     for (auto const &vec : mat)
@@ -52,3 +58,5 @@ void printMatrix(MatDouble_t const &mat)
     }
     std::cout << ">\n";
 }
+
+#endif

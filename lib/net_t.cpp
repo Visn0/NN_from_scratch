@@ -9,7 +9,7 @@
 #include <fstream>
 
 #include "net_t.h"
-#include "globals.h"
+#include "utils.h"
 
 Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
 {

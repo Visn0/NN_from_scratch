@@ -23,10 +23,11 @@
 using VecDouble_t = std::vector<double>;      // = weight conection
 using MatDouble_t = std::vector<VecDouble_t>; // = layer
 
-
 MatDouble_t g_X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
 VecDouble_t g_y{0.0, 1.0, 1.0, 0.0};
 
+MatDouble_t g_X2{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
+MatDouble_t g_y2{{0.0, 0.0}, {0.0, 1.0}, {0.0, 1.0}, {1.0, 0.0}};
 
 void printVector(VecDouble_t const &vec)
 {
@@ -151,7 +152,7 @@ struct CutreNet_t
         for (std::size_t i = 0; i < a.size(); ++i)
         {
             double sign = sigmoid(a[i]);
-            double deltax = 2 * (a[i] - y); //(sign - y) * (sign * (1.0f - sign));
+            double deltax = 2 * (sign - y) * (sign * (1.0f - sign));
             result[i] = deltax;
         }
         return result;
@@ -169,16 +170,26 @@ struct CutreNet_t
 
     VecDouble_t calculate_next_delta(VecDouble_t const &a, MatDouble_t const &last_layer, VecDouble_t const &deltas)
     {
-        VecDouble_t result(last_layer[0].size(), 0.0);
-        for (size_t i{0}; i < last_layer[0].size(); ++i) // iterate through previous layer neurons (by columns)
+        VecDouble_t result(last_layer[0].size() - 1, 0.0);
+        std::cout << "Inputs used: ";
+        printVector(a);
+
+        for (size_t i{0}; i < last_layer[0].size() - 1; ++i) // iterate through previous layer neurons (by columns)
         {
             double sign = sigmoid(a[i]);
             double derivsign = (sign * (1.0 - sign));
             for (size_t j{0}; j < last_layer.size(); ++j) // iterate over each weight of the neuron (same size as deltas)
             {
-                result[i] += deltas[j] * last_layer[j][i];
+                result[i] += deltas[j] * last_layer[j][i + 1];
+                std::cout << "Delta " << i << " = " << derivsign << " * " << deltas[j] << " * " << last_layer[j][i + 1] << "\n";
             }
             result[i] *= derivsign;
+            //std::cout << "Delta i: \t" << result[i] << std::endl;
+        }
+        for (auto &layer : last_layer)
+        {
+            std::cout << "\n++Layer delta: ";
+            printVector(layer);
         }
         return result;
     }
@@ -187,9 +198,12 @@ struct CutreNet_t
     {
         for (size_t i{0}; i < layer.size(); ++i)
         {
-            for (int j = 0; j < layer[0].size(); ++j)
+            double grad = 1 * delta[i] * lr;
+            layer[i][0] = layer[i][0] - grad;
+            std::cout << "--Grad " << i << " " << 0 << " \t\t" << grad << std::endl;
+            for (int j = 1; j < layer[0].size(); ++j)
             {
-                double grad = a[j] * delta[i] * lr;
+                double grad = a[j - 1] * delta[i] * lr;
                 layer[i][j] = layer[i][j] - grad;
                 std::cout << "--Grad " << i << " " << j << " \t\t" << grad << std::endl;
                 //std::cout << layer[wi][wij] << std::endl;
@@ -201,8 +215,8 @@ struct CutreNet_t
     {
         std::ofstream myfile;
         myfile.open("example.csv");
-        
-        for (size_t epoch = 0; epoch < 5000; ++epoch)
+
+        for (size_t epoch = 0; epoch < 100; ++epoch)
         {
             std::cout << "\n####################################################" << std::endl;
             std::cout << "EPOCH: " << epoch << std::endl;
@@ -295,11 +309,11 @@ struct CutreNet_t
                         correct_weights(m_layers[l], outputs[l - 1].second, delta, lr);
                     }
                 }
+
+                double error = evaluateNet(X, y) / y.size();
+                std::cout << error << std::endl;
+                myfile << error << "\n";
             }
-            double error = evaluateNet(X, y) / y.size();
-            std::cout << error << std::endl;
-            myfile << error << "\n";
-            
         }
         myfile.close();
     }
@@ -357,9 +371,9 @@ void run()
     //     std::cout << h[0] << " " << result[i] << std::endl;
     // }
 
-    CutreNet_t net{2, 2, 1}; // input_size, 1st layer_size, .. , output_layer_size
+    CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
     //std::cout << evaluateNet(net, g_X, g_y) << std::endl;
-    net.train(g_X, g_y, 0.001);
+    net.train(g_X, g_y, 0.01);
     std::cout << net.evaluateNet(g_X, g_y) / g_y.size() << std::endl;
 }
 

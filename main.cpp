@@ -140,7 +140,7 @@ struct CutreNet_t
 
     double sigmoid_derivative(double x) const
     {
-        return x * (1 - x);
+        return sigmoid(x) * (1 - sigmoid(x));
     }
 
     VecDouble_t sigmoid(VecDouble_t const &v) const
@@ -153,16 +153,16 @@ struct CutreNet_t
         return result;
     }
 
-    VecDouble_t sigmoid_derivative(VecDouble_t const &v)
-    {
-        VecDouble_t result(v);
+    // VecDouble_t sigmoid_derivative(VecDouble_t const &v)
+    // {
+    //     VecDouble_t result(v);
 
-        for (auto &e : result)
-        {
-            e *= (1 - e);
-        }
-        return result;
-    }
+    //     for (auto &e : result)
+    //     {
+    //         e *= (1 - e);
+    //     }
+    //     return result;
+    // }
 
     VecDouble_t feedforward(VecDouble_t const &x) const
     {
@@ -216,6 +216,7 @@ struct CutreNet_t
             double grad = delta[i] * lr;
             layer[i][0] = layer[i][0] - grad;
             print("--Grad", i, 0, " \t\t", grad, "\n");
+            
             // correct weights
             for (std::size_t j = 1; j < layer[0].size(); ++j)
             {

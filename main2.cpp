@@ -84,11 +84,6 @@ struct CutreNet_t
             m_layers.push_back(layer_w);
             input_size = *it;
         }
-
-        // for (auto layer : m_layers)
-        // {
-        //     std::cout << layer.size() << std::endl;
-        // }
     }
 
     VecDouble_t multiplyT(VecDouble_t const &x, MatDouble_t const &W) const
@@ -146,13 +141,13 @@ struct CutreNet_t
         return result;
     }
 
-    VecDouble_t calculate_delta(VecDouble_t const &a, double const &y)
+    VecDouble_t calculate_delta(VecDouble_t const &a, VecDouble_t const &y)
     {
         VecDouble_t result(a.size(), 0.0);
         for (std::size_t i = 0; i < a.size(); ++i)
         {
             double sign = sigmoid(a[i]);
-            double deltax = 2 * (sign - y) * (sign * (1.0f - sign));
+            double deltax = 2 * (sign - y[i]) * (sign * (1.0f - sign));
             result[i] = deltax;
         }
         return result;
@@ -211,12 +206,12 @@ struct CutreNet_t
         }
     }
 
-    void train(MatDouble_t const &X, VecDouble_t const &y, double const &lr)
+    void train(MatDouble_t const &X, MatDouble_t const &y, double const &lr)
     {
         std::ofstream myfile;
         myfile.open("example.csv");
 
-        for (size_t epoch = 0; epoch < 100; ++epoch)
+        for (size_t epoch = 0; epoch < 1; ++epoch)
         {
             std::cout << "\n####################################################" << std::endl;
             std::cout << "EPOCH: " << epoch << std::endl;
@@ -244,8 +239,9 @@ struct CutreNet_t
                 VecDouble_t result(X[i]);
                 std::cout << "Input \t";
                 printVector(result);
-                std::cout << "Expected \t" << y[i] << "\n";
-                //printVector(y);
+                std::cout << "Expected \t";
+                printVector(y[i]);
+                
                 for (size_t wi{0}; wi < m_layers.size(); ++wi)
                 {
                     result.resize(result.size() + 1);
@@ -318,7 +314,7 @@ struct CutreNet_t
         myfile.close();
     }
 
-    double evaluateNet(MatDouble_t const &X, VecDouble_t const &y)
+    double evaluateNet(MatDouble_t const &X, MatDouble_t const &y)
     {
         assert(X.size() == y.size());
 
@@ -326,10 +322,14 @@ struct CutreNet_t
         for (std::size_t i{0}; i < y.size(); ++i)
         {
             auto h = feedforward(X[i]);
-            double e = (h[0] - y[i]) * (h[0] - y[i]);
-            //std::cout << "Error " << e << std::endl;
-            error += e;
+            for(std::size_t j{0}; j < h.size(); ++j)
+            {
+                double e = (h[j] - y[i][j]) * (h[j] - y[i][j]);
+                //std::cout << "Error " << e << std::endl;
+                error += e;
+            }
         }
+        error /= y[0].size();
         return error;
     }
 
@@ -337,28 +337,28 @@ private:
     std::vector<MatDouble_t> m_layers;
 };
 
-auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
-{
-    CutreNet_t bestNet{2, 3, 1};
-    double bestError{bestNet.evaluateNet(X, y)};
-    std::cout << "Iter 0 \t"
-              << "Error: " << bestError << std::endl;
+// auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
+// {
+//     CutreNet_t bestNet{2, 3, 1};
+//     double bestError{bestNet.evaluateNet(X, y)};
+//     std::cout << "Iter 0 \t"
+//               << "Error: " << bestError << std::endl;
 
-    for (uint32_t iter{0}; iter < maxiter; ++iter)
-    {
-        CutreNet_t newNet{2, 3, 1};
-        double error{newNet.evaluateNet(X, y)};
+//     for (uint32_t iter{0}; iter < maxiter; ++iter)
+//     {
+//         CutreNet_t newNet{2, 3, 1};
+//         double error{newNet.evaluateNet(X, y)};
 
-        if (error < bestError)
-        {
-            bestNet = newNet;
-            bestError = error;
-            std::cout << "Iter " << iter << "\t Error: " << bestError << std::endl;
-        }
-    }
+//         if (error < bestError)
+//         {
+//             bestNet = newNet;
+//             bestError = error;
+//             std::cout << "Iter " << iter << "\t Error: " << bestError << std::endl;
+//         }
+//     }
 
-    return bestNet;
-}
+//     return bestNet;
+// }
 
 void run()
 {
@@ -371,10 +371,10 @@ void run()
     //     std::cout << h[0] << " " << result[i] << std::endl;
     // }
 
-    CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
+    CutreNet_t net{2, 3, 2}; // input_size, 1st layer_size, .. , output_layer_size
     //std::cout << evaluateNet(net, g_X, g_y) << std::endl;
-    net.train(g_X, g_y, 0.01);
-    std::cout << net.evaluateNet(g_X, g_y) / g_y.size() << std::endl;
+    net.train(g_X2, g_y2, 0.01);
+    std::cout << net.evaluateNet(g_X2, g_y2) / g_y.size() << std::endl;
 }
 
 int main()

@@ -24,7 +24,8 @@ class Net_t {
         // Fits the Neural Network
         //  X: input dataset
         //  y: input labels
-        void fit(MatDouble_t const &X, MatDouble_t const &y, double const &learning_rate);
+        //  epochs: training iterations (each epoch, the whole X dataset is passed to the network)
+        void fit(MatDouble_t const &X, MatDouble_t const &y, double const &learning_rate, std::size_t const &epochs);
 
         // Evaluates the network: returns its error (mean squared error)
         //  X: input dataset

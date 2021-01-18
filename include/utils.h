@@ -16,14 +16,19 @@ using MatDouble_t = std::vector<VecDouble_t>; // = layer
 
 #include "utils.h"
 
+static const bool DEBUG = false;
+
 template <class T>
 static void print(T const &t)
-{
+{   
+    if (!DEBUG) return;
     std::cout << " " << t;
 }
 
 static void print(VecDouble_t const &v)
 {
+    if (!DEBUG) return;
+
     std::cout << "(";
     for (auto const &e : v)
     {
@@ -35,12 +40,16 @@ static void print(VecDouble_t const &v)
 template <class T, class... Args>
 static void print(T const &t, Args... args) // recursive variadic function
 {
+    if (!DEBUG) return;
+
     print(t);
     print(args...);
 }
 
 static void printVector(VecDouble_t const &vec)
 {
+    if (!DEBUG) return;
+
     std::cout << "(";
     for (auto const &e : vec)
     {
@@ -51,6 +60,8 @@ static void printVector(VecDouble_t const &vec)
 
 static void printMatrix(MatDouble_t const &mat)
 {
+    if (!DEBUG) return;
+
     std::cout << ">\n";
     for (auto const &vec : mat)
     {

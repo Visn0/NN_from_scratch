@@ -7,7 +7,12 @@ MatDouble_t y{{0.0}, {1.0}, {1.0}, {0.0}};
 void run()
 {
     Net_t net{2, 3, 2}; // input_size, 1st layer_size, .. , output_layer_size
-    net.fit(X, y, 0.01);
+    net.fit(
+          X     // train dataset 
+        , y     // train labels
+        , 0.01  // learning rate
+        , 1     // epochs
+    );
     std::cout << net.evaluate(X, y) / y.size() << std::endl;
 }
 

@@ -30,12 +30,12 @@ Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
     }
 }
 
-void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr)
+void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, std::size_t const &epochs)
 {
     std::ofstream myfile;
     myfile.open("example.csv");
 
-    for (size_t epoch = 0; epoch < 1; ++epoch)
+    for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
         print("\n####################################################\n");
         print("EPOCH:", epoch, "\n");

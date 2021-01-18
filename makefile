@@ -13,4 +13,4 @@ $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm -rf $(OBJ) main
+	rm -rf $(OBJ) main $(MAIN)/*.cpp.res

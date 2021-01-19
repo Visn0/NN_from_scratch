@@ -9,11 +9,11 @@ MAIN=src
 main: $(MAIN)/main.cpp $(OBJ)
 	$(CC) $(OPTIONS) -I$(INCLUDEDIR) $(MAIN)/main.cpp $(OBJ) -o main
 
-test: main_time_test.cpp $(OBJ)
-	$(CC) $(OPTIONS) -I$(INCLUDEDIR) main_time_test.cpp $(OBJ) -o main
+ale: main_ale.cpp $(OBJ)
+	$(CC) $(OPTIONS) -I$(INCLUDEDIR) main_ale.cpp $(OBJ) -o main_ale
 
 $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm -rf $(OBJ) $(MAIN)/main.cpp $(MAIN)/*.cpp.out main
+	rm -rf $(OBJ) $(MAIN)/main.cpp $(MAIN)/*.cpp.out main main_ale

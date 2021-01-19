@@ -35,6 +35,7 @@ class Net_t {
             , std::size_t const &epochs
             , MatDouble_t const &X_test
             , MatDouble_t const &y_test
+            , uint8_t const &verbose = 0
         );
 
         // Evaluates the network: returns its error (mean squared error)

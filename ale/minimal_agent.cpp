@@ -1,10 +1,11 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include "src/ale_interface.hpp"
 #include <SDL/SDL.h>
 
 // Global vars
-const int maxSteps = 7500;
+const int maxSteps = 10000;
 int lastLives;
 float totalReward;
 ALEInterface alei;
@@ -62,28 +63,33 @@ void showRAM()
 
 void writeRAM(int teclas[])
 {
-   FILE* file;
+   std::ofstream ram_file;
 
-   file = fopen("datos.csv", "a");
-
+   ram_file.open("game_data.csv", std::ios::app);
    const auto& RAM = alei.getRAM();
+   uint8_t add = 0;   
 
-   uint8_t add = 0;
-   
    for (std::size_t i = 0; i < 8; i++)
    {
       for (std::size_t j = 0; j < 16; j++, add++)
       {
-         std::fprintf(file, "%02X;", RAM.get(add));
+         // std::fprintf(file, "%02X;", RAM.get(add));
+         ram_file << std::to_string(RAM.get(add)) << ";";
       }
    }
    
+   ram_file << std::endl;
+   ram_file.close();
+
+   std::ofstream user_input_file;
+   user_input_file.open("user_inputs.csv", std::ios::app);      
    for (std::size_t i = 0; i < 4; i++)
-   {
-      std::fprintf(file, "%d;", teclas[i]);
-   }
-   std::fprintf(file, "\n");
-   fclose(file);
+   {      
+      user_input_file << std::to_string(teclas[i]) << ";";
+      // std::cout << "TECLA: " << std::to_string(teclas[i]) << std::endl;
+   }   
+   user_input_file << std::endl;
+   user_input_file.close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

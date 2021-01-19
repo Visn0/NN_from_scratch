@@ -1,16 +1,17 @@
 #include "utils.h"
 #include "net_t.h"
 
-const int EPOCHS            = 1000;
+const int EPOCHS            = 100;
 const double LEARNING_RATE  = 0.01;
-const int TRAIN_INPUT_SIZE  = 40;
-const int TEST_INPUT_SIZE   = 40;
+const int INPUT_SIZE        = 128;
+const int OUTPUT_SIZE       = 4;
 
-PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_filename, const int& input_size)
+PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_filename)
 {
-    MatDouble_t X ( CSV_to_MatDouble(X_filename, input_size) );
-    MatDouble_t y ( CSV_to_MatDouble(y_filename, input_size) );
+    MatDouble_t X ( CSV_to_MatDouble(X_filename, INPUT_SIZE) );
+    MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );
 
+    std::cout << "DATASET READ SUCCESFULLY" << std::endl;
     return std::make_pair(X, y);
 }
 
@@ -25,17 +26,21 @@ double fit_time(
 {
     double start = clock();
 
-    net.fit(
-          X_train
-        , y_train
-        , LEARNING_RATE
-        , EPOCHS     
-        , X_test
-        , y_test
+    VecPair_t history(
+        net.fit(
+              X_train
+            , y_train
+            , LEARNING_RATE
+            , EPOCHS     
+            , X_test
+            , y_test
+            , 1 // verbose
+        )
     );
 
     double end = clock();
 
+    vecPair_to_CSV("history.csv", history);    
     return 1000.0 * (end - start) / CLOCKS_PER_SEC;
 }
 
@@ -52,10 +57,10 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 }
 
 void run() {
-    Net_t net{2, 100, 100, 1};
+    Net_t net{ INPUT_SIZE, 16, 16, OUTPUT_SIZE };
 
-    auto [X_train, y_train] = readDataset("train.csv", "y_train.csv", TRAIN_INPUT_SIZE);
-    auto [X_test, y_test] = readDataset("X_test.csv", "y_test.csv", TEST_INPUT_SIZE);
+    auto [X_train, y_train] = readDataset("x.csv", "y.csv");
+    auto [X_test, y_test] = readDataset("x.csv", "y.csv");
 
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 

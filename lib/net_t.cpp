@@ -37,6 +37,7 @@ VecPair_t Net_t::fit(
     , std::size_t const &epochs
     , MatDouble_t const &X_test
     , MatDouble_t const &y_test
+    , uint8_t const &verbose
 )
 {
     // history[epoch] = pair(train_error, test_error)
@@ -132,6 +133,18 @@ VecPair_t Net_t::fit(
         const double train_error = evaluate(X_train, y_train);
         const double test_error  = evaluate(X_test, y_test);
         history[epoch] = std::make_pair( train_error, test_error ); 
+
+        switch (verbose)
+        {
+            case 1:
+                std::cout << "Epoch " << std::to_string(epoch);
+                std::cout << ": train_error=" << std::to_string(train_error);
+                std::cout << "\ttest_error=" << std::to_string(test_error);
+                std::cout << std::endl;
+                break;
+            
+            default: break;            
+        }
     }
 
     return history;

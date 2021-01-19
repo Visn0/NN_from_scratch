@@ -62,7 +62,7 @@ static void print(MatDouble_t const &mat)
     std::cout << ">\n";
 }
 
-static MatDouble_t CSV_to_MatDouble(std::string filename, const int& input_size) {
+static MatDouble_t CSV_to_MatDouble(const std::string& filename, const int& size) {
     std::ifstream file;
     file.open(filename);
 
@@ -81,17 +81,30 @@ static MatDouble_t CSV_to_MatDouble(std::string filename, const int& input_size)
         sline.clear();
         sline.str(line);
               
-        VecDouble_t input(input_size);    
-        for(int i = 0; i < input_size; ++i)
+        VecDouble_t input(size);    
+        for(int i = 0; i < size; ++i)
         {
             sline >> std::hex >> input[i];            
-        }                    
+        }
+
+        data.push_back(input);
     }       
     
     file.close();
 
-    print(data);
+    // print(data);
     return data;
+}
+
+static void vecPair_to_CSV(const std::string &filename, const VecPair_t& vec) {
+    std::ofstream file;
+    file.open(filename);
+
+    for(auto& v: vec) {
+        file << std::to_string(v.first) << ";" << std::to_string(v.first) << ";" << std::endl;
+    }
+
+    file.close();
 }
 
 #endif

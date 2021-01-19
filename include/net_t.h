@@ -28,7 +28,14 @@ class Net_t {
         //  X: input dataset
         //  y: input labels
         //  epochs: training iterations (each epoch, the whole X dataset is passed to the network)
-        void fit(MatDouble_t const &X, MatDouble_t const &y, double const &learning_rate, std::size_t const &epochs);
+        VecPair_t fit(
+              MatDouble_t const &X_train
+            , MatDouble_t const &y_train            
+            , double const &lr
+            , std::size_t const &epochs
+            , MatDouble_t const &X_test
+            , MatDouble_t const &y_test
+        );
 
         // Evaluates the network: returns its error (mean squared error)
         //  X: input dataset

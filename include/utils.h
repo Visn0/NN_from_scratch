@@ -10,9 +10,11 @@
 #include <random>
 #include <cmath>
 #include <fstream>
+#include <utility>
 
-using VecDouble_t = std::vector<double>;      // = weight conection
-using MatDouble_t = std::vector<VecDouble_t>; // = layer
+using VecDouble_t   = std::vector<double>;      // = weight conection
+using MatDouble_t   = std::vector<VecDouble_t>; // = layer
+using VecPair_t     = std::vector<std::pair<double, double>>;
 
 #include "utils.h"
 

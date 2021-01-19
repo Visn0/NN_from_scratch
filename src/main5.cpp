@@ -13,6 +13,8 @@ void run()
         , y     // train labels
         , 0.01  // learning rate
         , 1     // epochs
+        , X
+        , y
     );
     
     std::cout << std::endl << net << std::endl;

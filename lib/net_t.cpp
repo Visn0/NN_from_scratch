@@ -8,7 +8,6 @@
 #include <cmath>
 #include <fstream>
 #include <ostream>
-
 #include "net_t.h"
 #include "utils.h"
 
@@ -31,17 +30,24 @@ Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
     }
 }
 
-void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, std::size_t const &epochs)
+VecPair_t Net_t::fit(
+      MatDouble_t const &X_train
+    , MatDouble_t const &y_train
+    , double const &lr
+    , std::size_t const &epochs
+    , MatDouble_t const &X_test
+    , MatDouble_t const &y_test
+)
 {
-    std::ofstream myfile;
-    myfile.open("example.csv");
+    // history[epoch] = pair(train_error, test_error)
+    VecPair_t history(epochs);
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
         print("\n####################################################\n");
         print("EPOCH:", epoch, "\n");
         print("####################################################\n");
-        for (size_t i{0}; i < X.size(); ++i) // iterations of train
+        for (size_t i{0}; i < X_train.size(); ++i) // iterations of train
         {
             std::vector<std::pair<VecDouble_t,  // raw output (z)
                                     VecDouble_t>> // output through activation function (a)
@@ -62,9 +68,9 @@ void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, st
             print("FORWARD \n");
             print("~~~~~~~~~~~~~~\n");
 
-            VecDouble_t result(X[i]);
+            VecDouble_t result(X_train[i]);
             print("Input \t\t", result);
-            print("Expected \t", y[i]);
+            print("Expected \t", y_train[i]);
 
             for (size_t wi{0}; wi < m_layers.size(); ++wi)
             {
@@ -87,7 +93,7 @@ void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, st
             VecDouble_t z = outputs[L].first;
             VecDouble_t a = outputs[L].second;
 
-            VecDouble_t delta = calculate_last_delta(a, y[i]);
+            VecDouble_t delta = calculate_last_delta(a, y_train[i]);
             print("Delta", L, "\t\t", delta);
 
             // save last layer to use the original weights in next layer
@@ -114,20 +120,21 @@ void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, st
                 }
                 if (l == 0)
                 {
-                    update_weights(m_layers[l], X[i], delta, lr);
+                    update_weights(m_layers[l], X_train[i], delta, lr);
                 }
                 else
                 {
                     update_weights(m_layers[l], outputs[l - 1].second, delta, lr);
                 }
-            }
-
-            double error = evaluate(X, y) / y.size();
-            //std::cout << error << std::endl;
-            myfile << error << "\n";
+            }                       
         }
+    
+        const double train_error = evaluate(X_train, y_train);
+        const double test_error  = evaluate(X_test, y_test);
+        history[epoch] = std::make_pair( train_error, test_error ); 
     }
-    myfile.close();
+
+    return history;
 }
 
 double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)

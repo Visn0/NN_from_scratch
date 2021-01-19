@@ -46,26 +46,14 @@ static void print(T const &t, Args... args) // recursive variadic function
     print(args...);
 }
 
-static void printVector(VecDouble_t const &vec)
-{
-    if (!DEBUG) return;
-
-    std::cout << "(";
-    for (auto const &e : vec)
-    {
-        std::cout << " " << e;
-    }
-    std::cout << " )\n";
-}
-
-static void printMatrix(MatDouble_t const &mat)
+static void print(MatDouble_t const &mat)
 {
     if (!DEBUG) return;
 
     std::cout << ">\n";
     for (auto const &vec : mat)
     {
-        printVector(vec);
+        print(vec);
     }
     std::cout << ">\n";
 }

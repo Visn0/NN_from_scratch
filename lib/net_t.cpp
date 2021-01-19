@@ -54,7 +54,7 @@ void Net_t::fit(MatDouble_t const &X, MatDouble_t const &y, double const &lr, st
             print("NETWORK \n");
             for (size_t wi{0}; wi < m_layers.size(); ++wi)
             {
-                printMatrix(m_layers[wi]);
+                print(m_layers[wi]);
             }
 
             // feedforward
@@ -146,25 +146,26 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
         }
     }
     error /= y[0].size();
+    error /= y.size();
     return error;
 }
 
 std::ostream & operator<<(std::ostream &os, const Net_t &net) {
     for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
-        os << "### begin Layer traspose: " << std::to_string(layer) << " ###" << std::endl;
+        os << "### begin Layer traspose " << std::to_string(layer) << " ###" << std::endl;
 
         for(std::size_t signal_j = 0; signal_j < net.m_layers[layer].size(); ++signal_j) {
             std::string signal_str{ std::to_string(signal_j) };            
 
-            os << "-- (\t";
+            os << "(\t";
             auto* signal_ref = &net.m_layers[layer][signal_j];
             for(std::size_t weight = 0; weight < signal_ref->size(); ++weight) {                                
-                os << std::to_string((*signal_ref)[weight]) << "\t";
+                os << (*signal_ref)[weight] << "\t";
             }
             os << ")" << std::endl;
         }
 
-        os << "### end Layer " << std::to_string(layer) << " ###" << std::endl << std::endl;;
+        os << "### end Layer " << std::to_string(layer) << " ###" << std::endl;;
     }
 
     return os;

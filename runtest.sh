@@ -1,26 +1,17 @@
-SRC=src
-EXPECTED=$SRC/main.cpp.out
-RESULT=$SRC/main.cpp.res
-
-for file in $(ls $SRC/*.cpp)
-do    
-    make clean
-    echo -e "##### TEST: $file #####"
-    cp $file $SRC/main.cpp
-    cp $file.out $EXPECTED
-    
-    make    
-
-    ./main > $RESULT
-    diffresult=$(colordiff -Z -s $EXPECTED $RESULT)
-
-    if [ -z "$diffresult" ]; 
-    then 
-        echo -e "\tOK\n"; 
-    else 
-        echo -e "\tERROR: $file \n $diffresult \n"; 
-    fi
+cd src
+for FILE in $(ls *.cpp) ; do
+	echo "Evaluando $FILE"
+	cp $FILE main.cpp
+	cd ..
+	make
+	cd src
+	../main > $FILE.out
+	colordiff -b -B -i $FILE.out $FILE.sol
+	if [ "$?" == "0" ]; then
+		echo "OK"
+	else
+		echo "ERROR"
+	fi
 done
-
+cd ..
 make clean
-rm -rf $SRC/main.cpp

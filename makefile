@@ -9,8 +9,11 @@ MAIN=src
 main: $(MAIN)/main.cpp $(OBJ)
 	$(CC) $(OPTIONS) -I$(INCLUDEDIR) $(MAIN)/main.cpp $(OBJ) -o main
 
+test: main.cpp $(OBJ)
+	$(CC) $(OPTIONS) -I$(INCLUDEDIR) main.cpp $(OBJ) -o main
+
 $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm -rf $(OBJ) main $(MAIN)/*.cpp.res
+	rm -rf $(OBJ) $(MAIN)/main.cpp $(MAIN)/*.cpp.out

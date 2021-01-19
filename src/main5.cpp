@@ -11,7 +11,7 @@ void run()
     net.fit(
           X     // train dataset 
         , y     // train labels
-        , 0.1  // learning rate
+        , 0.01  // learning rate
         , 1     // epochs
     );
     

@@ -12,7 +12,7 @@ void run()
           X     // train dataset 
         , y     // train labels
         , 0.1  // learning rate
-        , 1     // epochs
+        , 2     // epochs
     );
     
     std::cout << std::endl << net << std::endl;

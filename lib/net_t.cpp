@@ -148,12 +148,11 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
         for (std::size_t j{0}; j < h.size(); ++j)
         {
             double e = (h[j] - y[i][j]) * (h[j] - y[i][j]);
-            //std::cout << "Error " << e << std::endl;
             error += e;
         }
     }
-    error /= y[0].size();
-    error /= y.size();
+
+    error /= (y[0].size() * y.size());
     return error;
 }
 
@@ -216,17 +215,6 @@ VecDouble_t Net_t::sigmoid(VecDouble_t const &v) const
     return result;
 }
 
-// VecDouble_t Net_t::sigmoid_derivative(VecDouble_t const &v)
-// {
-//     VecDouble_t result(v);
-
-//     for (auto &e : result)
-//     {
-//         e *= (1 - e);
-//     }
-//     return result;
-// }
-
 VecDouble_t Net_t::feedforward(VecDouble_t const &x) const
 {
     VecDouble_t result(x);
@@ -237,8 +225,9 @@ VecDouble_t Net_t::feedforward(VecDouble_t const &x) const
         std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
         result[0] = 1.0;
 
-        result = sigmoid(multiplyT(result, Wi));
+        result = sigmoid( multiplyT(result, Wi) );
     }
+
     return result;
 }
 
@@ -265,8 +254,8 @@ VecDouble_t Net_t::calculate_hidden_delta(VecDouble_t const &a, MatDouble_t cons
         {
             result[i] += deltas[j] * last_layer[j][i + 1];
         }
+
         result[i] *= sigmoid_derivative(a[i]);
-        //std::cout << "Delta " << i << " \t" << result[i] << "\n";
     }
     return result;
 }
@@ -275,12 +264,12 @@ void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t
 {
     for (size_t i{0}; i < layer.size(); ++i)
     {
-        // correct bias
+        // update bias
         double grad = delta[i] * lr;
         layer[i][0] = layer[i][0] - grad;
         print("--Grad", i, 0, " \t\t", grad, "\n");
 
-        // correct weights
+        // update weights
         for (std::size_t j = 1; j < layer[0].size(); ++j)
         {
             grad = a[j - 1] * delta[i] * lr;
@@ -295,6 +284,7 @@ double Net_t::randDouble(double min, double max)
     static std::random_device dev;
     static std::mt19937 rng(0); //dev()); // random number generator
     static std::uniform_real_distribution<double> dist(min, max);
+
     return dist(rng);
 }
 
@@ -309,11 +299,11 @@ void Net_t::fillVectorRandom(VecDouble_t &vec, double min, double max)
 bool Net_t::checksize(int a, int b)
 {
     if (a != b)
-    {
-        // std::cout << "Different size!!" << std::endl;
+    {        
         throw std::runtime_error("Different size!!");
         return false;
     }
+
     return true;
 }
 // ######################## END AUXILIAR METHODS ########################

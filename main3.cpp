@@ -48,12 +48,12 @@ void fillVectorRandom(VecDouble_t &vec, double min, double max)
     }
 }
 
-struct CutreNet_t
+struct Net_t
 {
-    explicit CutreNet_t(std::initializer_list<uint16_t> const &layers)
+    explicit Net_t(std::initializer_list<uint16_t> const &layers)
     {
         if (layers.size() < 2)
-            throw std::out_of_range("CutreNet_t");
+            throw std::out_of_range("Net_t");
 
         auto input_size = *layers.begin();
         for (auto it = layers.begin() + 1; it != layers.end(); ++it)
@@ -267,7 +267,7 @@ private:
 MatDouble_t g_X{{0.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {1.0, 1.0}};
 VecDouble_t g_y{0.0, 1.0, 1.0, 0.0};
 
-double evaluateNet(CutreNet_t const &net, MatDouble_t const &X, VecDouble_t const &y)
+double evaluateNet(Net_t const &net, MatDouble_t const &X, VecDouble_t const &y)
 {
     assert(X.size() == y.size());
 
@@ -282,14 +282,14 @@ double evaluateNet(CutreNet_t const &net, MatDouble_t const &X, VecDouble_t cons
 
 auto random_train(MatDouble_t const &X, VecDouble_t const &y, uint32_t maxiter)
 {
-    CutreNet_t bestNet{2, 3, 1};
+    Net_t bestNet{2, 3, 1};
     double bestError{evaluateNet(bestNet, X, y)};
     std::cout << "Iter 0 \t"
               << "Error: " << bestError << std::endl;
 
     for (uint32_t iter{0}; iter < maxiter; ++iter)
     {
-        CutreNet_t newNet{2, 3, 1};
+        Net_t newNet{2, 3, 1};
         double error{evaluateNet(newNet, X, y)};
 
         if (error < bestError)
@@ -314,7 +314,7 @@ void run()
     //     std::cout << h[0] << " " << g_y[i] << std::endl;
     // }
 
-    CutreNet_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
+    Net_t net{2, 3, 1}; // input_size, 1st layer_size, .. , output_layer_size
     net.train(g_X, g_y, 0.1);
 }
 

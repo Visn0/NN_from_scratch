@@ -10,10 +10,13 @@
 #include <random>
 #include <cmath>
 #include <fstream>
+#include <ostream>
 
 #include "utils.h"
 
 class Net_t {
+
+    friend std::ostream & operator<<(std::ostream &os, const Net_t &net);
 
     public:
         // Constructor:

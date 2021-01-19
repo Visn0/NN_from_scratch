@@ -7,6 +7,7 @@
 #include <random>
 #include <cmath>
 #include <fstream>
+#include <ostream>
 
 #include "net_t.h"
 #include "utils.h"
@@ -146,6 +147,27 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     }
     error /= y[0].size();
     return error;
+}
+
+std::ostream & operator<<(std::ostream &os, const Net_t &net) {
+    for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
+        os << "### begin Layer traspose: " << std::to_string(layer) << " ###" << std::endl;
+
+        for(std::size_t signal_j = 0; signal_j < net.m_layers[layer].size(); ++signal_j) {
+            std::string signal_str{ std::to_string(signal_j) };            
+
+            os << "-- (\t";
+            auto* signal_ref = &net.m_layers[layer][signal_j];
+            for(std::size_t weight = 0; weight < signal_ref->size(); ++weight) {                                
+                os << std::to_string((*signal_ref)[weight]) << "\t";
+            }
+            os << ")" << std::endl;
+        }
+
+        os << "### end Layer " << std::to_string(layer) << " ###" << std::endl << std::endl;;
+    }
+
+    return os;
 }
 
 

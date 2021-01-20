@@ -13,13 +13,13 @@ def cplot(df):
     ax.plot(df)
 
     ax.set(xlabel='epoch', ylabel='error',
-        title='Learning rate error')
+        title='Mean squared error')
     ax.grid()
 
     fig.savefig("test.png")
     plt.show()
 
-df = pd.read_csv('example.csv')
+df = pd.read_csv('history.csv')
 
 print(df)
 cplot(df)

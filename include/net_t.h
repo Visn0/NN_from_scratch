@@ -82,13 +82,7 @@ class Net_t {
         //  a: vector of results of activation functions from previous layer [(X_i)^(l-1))
         //  delta: vector of deltas corresponding to each signal Sj of the given layer
         //  learning_rate: learning rate used for training
-        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate);    
-
-        // Generates a random number between [min, max]
-        double randDouble(double min, double max);
-
-        // Fills the vector vec with random numbers between [min, max]
-        void fillVectorRandom(VecDouble_t &vec, double min, double max);
+        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate);            
 
         // Returns true if (a == b), throws Exception otherwise.
         bool checksize(int a, int b);

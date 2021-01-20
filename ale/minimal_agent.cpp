@@ -65,7 +65,7 @@ void writeRAM(int teclas[])
 {
    std::ofstream ram_file;
 
-   ram_file.open("game_data.csv", std::ios::app);
+   ram_file.open("x.csv", std::ios::app);
    const auto& RAM = alei.getRAM();
    uint8_t add = 0;   
 
@@ -74,7 +74,7 @@ void writeRAM(int teclas[])
       for (std::size_t j = 0; j < 16; j++, add++)
       {
          // std::fprintf(file, "%02X;", RAM.get(add));
-         ram_file << std::to_string(RAM.get(add)) << ";";
+         ram_file << std::to_string(RAM.get(add)) << ",";
       }
    }
    
@@ -82,10 +82,10 @@ void writeRAM(int teclas[])
    ram_file.close();
 
    std::ofstream user_input_file;
-   user_input_file.open("user_inputs.csv", std::ios::app);      
+   user_input_file.open("y.csv", std::ios::app);      
    for (std::size_t i = 0; i < 4; i++)
    {      
-      user_input_file << std::to_string(teclas[i]) << ";";
+      user_input_file << std::to_string(teclas[i]) << ",";
       // std::cout << "TECLA: " << std::to_string(teclas[i]) << std::endl;
    }   
    user_input_file << std::endl;

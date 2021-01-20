@@ -292,23 +292,6 @@ void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t
     }
 }
 
-double Net_t::randDouble(double min, double max)
-{
-    static std::random_device dev;
-    static std::mt19937 rng(0); //dev()); // random number generator
-    static std::uniform_real_distribution<double> dist(min, max);
-
-    return dist(rng);
-}
-
-void Net_t::fillVectorRandom(VecDouble_t &vec, double min, double max)
-{
-    for (auto &v : vec)
-    {
-        v = randDouble(min, max);
-    }
-}
-
 bool Net_t::checksize(int a, int b)
 {
     if (a != b)

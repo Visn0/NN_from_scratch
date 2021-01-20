@@ -10,6 +10,9 @@ PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_
 {
     MatDouble_t X ( CSV_to_MatDouble(X_filename, INPUT_SIZE) );
     MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );
+    
+    myshuffle(X);
+    myshuffle(y);
 
     std::cout << "DATASET READ SUCCESFULLY" << std::endl;
     return std::make_pair(X, y);
@@ -57,10 +60,10 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 }
 
 void run() {
-    Net_t net{ INPUT_SIZE, 16, 16, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 2, 2, OUTPUT_SIZE };
 
     auto [X_train, y_train] = readDataset("x.csv", "y.csv");
-    auto [X_test, y_test] = readDataset("x.csv", "y.csv");
+    auto [X_test, y_test] = readDataset("x.csv", "y.csv");    
 
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 
@@ -72,7 +75,7 @@ void run() {
 }
 
 int main()
-{
+{    
     try
     {
         run();

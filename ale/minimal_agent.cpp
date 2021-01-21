@@ -197,7 +197,7 @@ float playManual(int teclas[]) {
       } 
    }
 
-
+   return reward;
 }
 
 float agentStep(Net_t& bot, bool useBot) {

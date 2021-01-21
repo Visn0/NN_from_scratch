@@ -3,8 +3,10 @@
 #include <cmath>
 #include "src/ale_interface.hpp"
 #include <SDL/SDL.h>
+#include "net_t.h"
 
 // Global vars
+const bool USE_BOT = false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -95,25 +97,72 @@ void writeRAM(int teclas[])
 ///////////////////////////////////////////////////////////////////////////////
 /// Do Next Agent Step
 ///////////////////////////////////////////////////////////////////////////////
-float agentStep() {
-   float reward = 0;
+VecDouble_t ram_to_VecDouble() {
+   const auto& RAM = alei.getRAM();
+   uint8_t add = 0;   
+
+   VecDouble_t result(8*16);
+   for (std::size_t i = 0; i < 8; i++)
+   {
+      for (std::size_t j = 0; j < 16; j++, add++)
+      {
+         // std::fprintf(file, "%02X;", RAM.get(add));
+         result[add] = RAM.get(add);
+      }
+   }   
+   
+   return result;
+}
+
+float playBot(Net_t& bot, int teclas[]) {
+   float reward = 0.0;
+
+   VecDouble_t RAM = ram_to_VecDouble();
+   VecDouble_t prediction = bot.predict(RAM);
+
+   // bot
+   if (prediction[0] > 0) // UP
+   {
+      teclas[0] = 1;
+      reward += alei.act(PLAYER_A_UP);
+   }          
+
+   if (prediction[1] > 0) // SPACE
+   {
+      teclas[1] = 1;
+      if (prediction[2] > 0) // LEFT
+      {
+         teclas[2] = 1;
+         reward += alei.act(PLAYER_A_LEFTFIRE);
+      }        
+      else if (prediction[3] > 0) //RIGHT
+      {
+         teclas[3] = 1;
+         reward += alei.act(PLAYER_A_RIGHTFIRE);
+      }   
+   }
+   else
+   {
+      if (prediction[2] > 0)
+      {
+         reward += alei.act(PLAYER_A_LEFT);
+         teclas[2] = 1;
+      }        
+      else if (prediction[3] > 0)
+      {
+         reward += alei.act(PLAYER_A_RIGHT);
+         teclas[3] = 1;
+      } 
+   }
+
+   return reward;
+}
+
+float playManual(int teclas[]) {
+   float reward = 0.0;
 
    auto* keystate = SDL_GetKeyState(0);
-
-   showRAM();
-
-   int teclas[4];
-   //
-   // 0 - UP
-   // 1 - SPACE
-   // 2 - LEFT
-   // 3 - RIGHT
-   //
-   for (std::size_t i = 0; i < 4; i++)
-   {
-      teclas[i] = 0;
-   }
-   
+   // manual
    if (keystate [SDLK_UP])
    {
       teclas[0] = 1;
@@ -147,6 +196,31 @@ float agentStep() {
          teclas[3] = 1;
       } 
    }
+
+
+}
+
+float agentStep(Net_t& bot, bool useBot) {
+   float reward = 0;
+
+   showRAM();
+
+   int teclas[4];
+   //
+   // 0 - UP
+   // 1 - SPACE
+   // 2 - LEFT
+   // 3 - RIGHT
+   //
+   for (std::size_t i = 0; i < 4; i++)
+   {
+      teclas[i] = 0;
+   }
+
+   if(useBot)
+      reward += playBot(bot, teclas);
+   else
+      reward += playManual(teclas);
    
    writeRAM(teclas);
 
@@ -188,11 +262,13 @@ int main(int argc, char **argv) {
    int step;
    cls();
    
+   Net_t bot("../ale_bot.csv");
+
    for (step = 0; 
         !alei.game_over() && step < maxSteps; 
         ++step) 
    {
-      totalReward += agentStep();
+      totalReward += agentStep(bot, USE_BOT);
    }
 
    std::cout << "Steps: " << step << std::endl;

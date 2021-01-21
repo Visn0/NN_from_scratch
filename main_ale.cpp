@@ -72,6 +72,8 @@ void run() {
     std::cout << "### EXECUTION TIMES ###" << std::endl;
     std::cout << "Fit\t\t: " << fit << " ms" << std::endl;
     std::cout << "Evaluate\t: " << evaluate << " ms" << std::endl;
+
+    net.save_model("ale_bot.csv");
 }
 
 int main()

@@ -30,6 +30,10 @@ Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
     }
 }
 
+Net_t::Net_t(std::string const &filename) {
+    load_model(filename);
+}
+
 VecPair_t Net_t::fit(
       MatDouble_t const &X_train
     , MatDouble_t const &y_train
@@ -169,6 +173,17 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     return error;
 }
 
+VecDouble_t Net_t::predict(VecDouble_t const &X) const {
+    // MatDouble_t results;
+
+    // for(const auto& v: X) 
+    // {
+    //     results.push_back( feedforward(v) );
+    // }
+
+    return feedforward(X);
+}
+
 void Net_t::save_model(std::string const &filename) const{
     std::ofstream file;
     file.open(filename, std::ios::out);
@@ -192,8 +207,8 @@ void Net_t::save_model(std::string const &filename) const{
 
     file.close();
     std::cout << "Model saved correctly: " << filename << std::endl;
-    std::cout << "---------SAVE MODEL" << std::endl;
-    std::cout << *this << std::endl << std::endl;
+    // std::cout << "---------SAVE MODEL" << std::endl;
+    // std::cout << *this << std::endl << std::endl;
 }
 
 void Net_t::load_model(std::string const &filename) {    
@@ -245,8 +260,8 @@ void Net_t::load_model(std::string const &filename) {
 
     file.close();
     m_layers.push_back(layer);    
-    std::cout << "---------LOAD MODEL" << std::endl;
-    std::cout << *this << std::endl;
+    // std::cout << "---------LOAD MODEL" << std::endl;
+    // std::cout << *this << std::endl;
 }
 
 std::ostream & operator<<(std::ostream &os, const Net_t &net) {

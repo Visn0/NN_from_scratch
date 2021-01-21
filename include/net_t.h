@@ -24,6 +24,8 @@ class Net_t {
         //  e.g. {2, 3, 1} -> 1 layer with 2 input neurons, 1 hidden layer with 3 neurons, 1 output layer with 1 neuron
         explicit Net_t(std::initializer_list<uint16_t> const &layers);
 
+        explicit Net_t(std::string const &filename);
+
         // Fits the Neural Network
         //  X: input dataset
         //  y: input labels
@@ -42,6 +44,8 @@ class Net_t {
         //  X: input dataset
         //  y: input labels
         double evaluate(MatDouble_t const &X, MatDouble_t const &y);
+
+        VecDouble_t predict(VecDouble_t const &X) const;
 
         // Saves the model weights and architecture in the specified file in CSV format.
         // Each line of the file represents a signal Sj that contains:

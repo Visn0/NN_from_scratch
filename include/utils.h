@@ -129,7 +129,7 @@ static void vecPair_to_CSV(const std::string &filename, const VecPair_t& vec) {
     file.open(filename);
 
     for(auto& v: vec) {
-        file << std::to_string(v.first) << "," << std::to_string(v.first) << std::endl;
+        file << std::to_string(v.first) << /*"," << std::to_string(v.first) <<*/ std::endl;
     }
 
     file.close();

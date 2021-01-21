@@ -169,6 +169,86 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     return error;
 }
 
+void Net_t::save_model(std::string const &filename) const{
+    std::ofstream file;
+    file.open(filename, std::ios::out);
+
+    for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {        
+        for(std::size_t signal_j = 0; signal_j < m_layers[layer].size(); ++signal_j) {
+            std::string signal_str{ std::to_string(signal_j) };            
+
+            auto* signal_ref = &m_layers[layer][signal_j];
+
+            file << layer; // layer numbner
+            file << "," <<  signal_ref->size(); // Number of parameters in the signal Sj
+            
+            for(std::size_t weight = 0; weight < signal_ref->size(); ++weight) {                                                
+                file << "," << (*signal_ref)[weight]; // weigth ij
+            }
+
+            file << std::endl;
+        }        
+    }
+
+    file.close();
+    std::cout << "Model saved correctly: " << filename << std::endl;
+    std::cout << "---------SAVE MODEL" << std::endl;
+    std::cout << *this << std::endl << std::endl;
+}
+
+void Net_t::load_model(std::string const &filename) {    
+    m_layers.clear();
+    
+    std::ifstream file;
+    file.open(filename);
+
+    if(!file.is_open())
+    {
+        throw std::runtime_error("[EXCEPTION]: File not found : " + filename);
+    }    
+
+    std::string line;                
+    std::istringstream sline;       
+    
+    std::string prevLayer;
+    std::string value;
+
+    MatDouble_t layer;
+    while(getline(file, line))
+    {                            
+        sline.clear();
+        sline.str(line);
+
+        // Read layer number
+        getline(sline, value, ',');
+
+        if (value > prevLayer)
+        {
+            prevLayer = value;
+            if (layer.size() > 0)
+                m_layers.push_back(layer);
+            layer.clear();
+        }
+
+        // Read number of params in the signal Sj
+        getline(sline, value, ',');
+
+        VecDouble_t signal_j( std::stoi(value) );            
+        for(int i = 0; i < signal_j.size(); ++i)
+        {            
+            getline(sline, value, ',') ;
+            signal_j[i] = std::stod(value);                     
+        }
+
+        layer.push_back(signal_j);
+    }       
+
+    file.close();
+    m_layers.push_back(layer);    
+    std::cout << "---------LOAD MODEL" << std::endl;
+    std::cout << *this << std::endl;
+}
+
 std::ostream & operator<<(std::ostream &os, const Net_t &net) {
     for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
         os << "### begin Layer traspose " << std::to_string(layer) << " ###" << std::endl;

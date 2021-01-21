@@ -43,6 +43,13 @@ class Net_t {
         //  y: input labels
         double evaluate(MatDouble_t const &X, MatDouble_t const &y);
 
+        // Saves the model weights and architecture in the specified file in CSV format.
+        // Each line of the file represents a signal Sj that contains:
+        //  LayerNumber NumberOfParamsInTheSignal,wij,wi+1j,wi+nj
+        void save_model(std::string const &filename) const;
+
+        void load_model(std::string const &filename);
+
     private:
         // Neural Network architecture
         std::vector<MatDouble_t> m_layers;

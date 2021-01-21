@@ -6,10 +6,38 @@ const double LEARNING_RATE  = 0.01;
 const int INPUT_SIZE        = 128;
 const int OUTPUT_SIZE       = 4;
 
+void countClicks(const MatDouble_t& steps) {
+    //
+    // 0 - UP
+    // 1 - SPACE
+    // 2 - LEFT
+    // 3 - RIGHT    
+    //
+    VecDouble_t counters(4);
+    int clickCounter = 0;
+    for(const auto& step: steps) {
+        int clicksOnStep = 0;
+
+        for(std::size_t key = 0; key < step.size(); ++key) {
+            counters[key] += step[key]; // step[key] is always 0 or 1.
+            clicksOnStep += step[key];
+        }      
+
+        clickCounter += ((clicksOnStep > 0) ? 1 : 0);        
+    }
+
+    print("\n## begin CLICK COUNTERS\n");
+    print("TOTAL examples: " + std::to_string(steps.size()) + "\n");
+    print("Examples with click: " + std::to_string(clickCounter) + "\n");
+    print("(UP, SPACE, LEFT, RIGHT)\n");
+    print(counters);
+    print("## end CLICK COUNTERS \n");
+}
+
 PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_filename)
 {
     MatDouble_t X ( CSV_to_MatDouble(X_filename, INPUT_SIZE) );
-    MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );
+    MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );    
     
     myshuffle(X);
     myshuffle(y);
@@ -64,6 +92,8 @@ void run() {
 
     auto [X_train, y_train] = readDataset("x.csv", "y.csv");
     auto [X_test, y_test] = readDataset("x.csv", "y.csv");    
+
+    countClicks(y_train);
 
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 

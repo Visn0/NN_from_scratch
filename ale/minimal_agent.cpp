@@ -6,8 +6,8 @@
 #include "net_t.h"
 
 // Global vars
-const double BOT_THRESHOLD = 0.00;
-const bool USE_BOT = true;
+const double BOT_THRESHOLD = 0.15;
+const bool USE_BOT = !false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;

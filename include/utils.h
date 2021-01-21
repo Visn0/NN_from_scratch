@@ -41,7 +41,7 @@ static void fillVectorRandom(VecDouble_t &vec, double min, double max)
 
 static void myshuffle(auto& collection)
 {    
-    auto rng = std::default_random_engine { 0 };
+    auto rng = std::default_random_engine { 517 };
     std::shuffle ( collection.begin(), collection.end(), rng);    
 }
 
@@ -128,7 +128,7 @@ static void vecPair_to_CSV(const std::string &filename, const VecPair_t& vec) {
     file.open(filename);
 
     for(auto& v: vec) {
-        file << std::to_string(v.first) << "," << std::to_string(v.first) << std::endl;
+        file << std::to_string(v.first) << "," << std::to_string(v.second) << std::endl;
     }
 
     file.close();

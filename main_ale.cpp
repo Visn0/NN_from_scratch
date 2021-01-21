@@ -90,10 +90,10 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 }
 
 void run() {
-    Net_t net{ INPUT_SIZE, 64, 16, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 32, 16, 8, OUTPUT_SIZE };
 
-    auto [X_train, y_train] = readDataset("x.csv", "y.csv");
-    auto [X_test, y_test] = readDataset("x.csv", "y.csv");    
+    auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
+    auto [X_test, y_test] = readDataset("x_test.csv", "y_test.csv");    
 
     countClicks(y_train);
 

@@ -13,6 +13,8 @@ void countClicks(const MatDouble_t& steps) {
     // 2 - LEFT
     // 3 - RIGHT    
     //
+    if (!DEBUG) return;
+
     VecDouble_t counters(4);
     int clickCounter = 0;
     for(const auto& step: steps) {

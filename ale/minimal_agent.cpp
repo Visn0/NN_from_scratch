@@ -6,7 +6,8 @@
 #include "net_t.h"
 
 // Global vars
-const bool USE_BOT = false;
+const double BOT_THRESHOLD = 0.5;
+const bool USE_BOT = true;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -120,22 +121,24 @@ float playBot(Net_t& bot, int teclas[]) {
    VecDouble_t RAM = ram_to_VecDouble();
    VecDouble_t prediction = bot.predict(RAM);
 
+   print(prediction);
+
    // bot
-   if (prediction[0] > 0) // UP
+   if (prediction[0] > BOT_THRESHOLD) // UP
    {
       teclas[0] = 1;
       reward += alei.act(PLAYER_A_UP);
    }          
 
-   if (prediction[1] > 0) // SPACE
+   if (prediction[1] > BOT_THRESHOLD) // SPACE
    {
       teclas[1] = 1;
-      if (prediction[2] > 0) // LEFT
+      if (prediction[2] > BOT_THRESHOLD) // LEFT
       {
          teclas[2] = 1;
          reward += alei.act(PLAYER_A_LEFTFIRE);
       }        
-      else if (prediction[3] > 0) //RIGHT
+      else if (prediction[3] > BOT_THRESHOLD) //RIGHT
       {
          teclas[3] = 1;
          reward += alei.act(PLAYER_A_RIGHTFIRE);
@@ -143,12 +146,12 @@ float playBot(Net_t& bot, int teclas[]) {
    }
    else
    {
-      if (prediction[2] > 0)
+      if (prediction[2] > BOT_THRESHOLD)
       {
          reward += alei.act(PLAYER_A_LEFT);
          teclas[2] = 1;
       }        
-      else if (prediction[3] > 0)
+      else if (prediction[3] > BOT_THRESHOLD)
       {
          reward += alei.act(PLAYER_A_RIGHT);
          teclas[3] = 1;

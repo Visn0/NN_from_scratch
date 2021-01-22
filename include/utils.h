@@ -108,11 +108,20 @@ static MatDouble_t CSV_to_MatDouble(const std::string& filename, const int& size
               
         VecDouble_t input(size);    
         std::string value;
-        for(int i = 0; i < size; ++i)
+
+        if (size > 0) 
         {            
-            getline(sline, value, ',') ;
-            input[i] = std::stod(value);
-            // std::cout << sline.str() << std::endl;                      
+            for(int i = 0; i < size; ++i)
+            {            
+                getline(sline, value, ',') ;            
+                input[i] = std::stod(value);
+                // std::cout << sline.str() << std::endl;                      
+            }
+        }
+        else
+        {
+            while(getline(sline, value, ','))
+                input.push_back(std::stod(value));
         }
 
         data.push_back(input);

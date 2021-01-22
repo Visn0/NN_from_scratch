@@ -265,7 +265,7 @@ void Net_t::load_model(std::string const &filename) {
     // std::cout << *this << std::endl;
 }
 
-std::ostream & operator<<(std::ostream &os, const Net_t &net) {
+std::ostream & operator<<(std::ostream &os, const Net_t &net) {    
     for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
         os << "### begin Layer traspose " << std::to_string(layer) << " ###" << std::endl;
 

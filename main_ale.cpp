@@ -1,10 +1,11 @@
 #include "utils.h"
 #include "net_t.h"
 
-const int EPOCHS            = 250;
-const double LEARNING_RATE  = 0.01;
-const int OUTPUT_SIZE       = 4;
-uint16_t INPUT_SIZE         = 0;
+const double REGULARIZATION_LAMBDA  = 0.001;
+const int EPOCHS                    = 150;
+const double LEARNING_RATE          = 0.1;
+const int OUTPUT_SIZE               = 4;
+uint16_t INPUT_SIZE                 = 0;
 
 void heatMap(const MatDouble_t& data) 
 {
@@ -113,14 +114,15 @@ double fit_time(
             , EPOCHS     
             , X_test
             , y_test
-            , 1 // verbose
+            , 1 // verbose,
+            , REGULARIZATION_LAMBDA
         )
     );
 
     double end = clock();
 
     vecPair_to_CSV("history.csv", history);    
-    return 1000.0 * (end - start) / CLOCKS_PER_SEC;
+    return (end - start) / CLOCKS_PER_SEC;
 }
 
 // Time in ms
@@ -143,14 +145,16 @@ void run()
     // countClicks(y_train);
     // heatMap(X_train);    
 
-    INPUT_SIZE = (int) X_train[0].size();
-    Net_t net{ INPUT_SIZE, 64, 32, 16, 8, OUTPUT_SIZE };
+    INPUT_SIZE = X_train[0].size();
+    std::cout << "INPUT_SIZE: " << X_train[0].size() << std::endl;
+    Net_t net{ INPUT_SIZE, 64, 16, OUTPUT_SIZE };
+    
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 
     const double evaluate = evaluate_time(net, X_test, y_test);
 
     std::cout << "### EXECUTION TIMES ###" << std::endl;
-    std::cout << "Fit\t\t: " << fit << " ms" << std::endl;
+    std::cout << "Fit\t\t: " << fit << " s" << std::endl;
     std::cout << "Evaluate\t: " << evaluate << " ms" << std::endl;
 
     net.save_model("ale_bot.csv");

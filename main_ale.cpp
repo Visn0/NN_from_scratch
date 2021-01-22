@@ -1,13 +1,14 @@
 #include "utils.h"
 #include "net_t.h"
+#include <string.h>
 
-const double REGULARIZATION_LAMBDA  = 0.001;
-const int EPOCHS                    = 150;
-const double LEARNING_RATE          = 0.1;
+const double REGULARIZATION_LAMBDA  = 0.0001;
+const int EPOCHS                    = 100;
+const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 4;
 uint16_t INPUT_SIZE                 = 0;
 
-void heatMap(const MatDouble_t& data) 
+void heatMap(const MatDouble_t& data, const double& percentage) 
 {
     // Initialize heat map
     VecDouble_t heat(data[0].size(), 0.0);
@@ -41,7 +42,7 @@ void heatMap(const MatDouble_t& data)
     std::cout << "Changing indexes: ( ";        
     for(std::size_t i = 0; i < heat.size(); ++i)
     {
-        if (heat[i] > 1.0)
+        if (heat[i] > percentage)
         {            
             indexes.push_back(i);
             std::cout << i << " ";
@@ -137,17 +138,22 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
     return 1000.0 * (end - start) / CLOCKS_PER_SEC;
 }
 
-void run() 
+void run(int argc, char* argv[]) 
 {    
     auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
     auto [X_test, y_test] = readDataset("x_test.csv", "y_test.csv");    
 
     // countClicks(y_train);
-    // heatMap(X_train);    
+
+    if (argc > 2 && strcmp(argv[1], "-heat") == 0)
+    {
+        heatMap(X_train, atof(argv[2]));    
+        return;
+    }
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << X_train[0].size() << std::endl;
-    Net_t net{ INPUT_SIZE, 64, 16, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 64, 32, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 
@@ -160,11 +166,11 @@ void run()
     net.save_model("ale_bot.csv");
 }
 
-int main()
+int main(int argc, char* argv[])
 {    
     try
     {
-        run();
+        run(argc, argv);
     }
     catch (std::exception &e)
     {

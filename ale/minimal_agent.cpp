@@ -8,7 +8,7 @@
 
 // Global vars
 const double BOT_THRESHOLD = 0.2;
-const bool USE_BOT = !false;
+const bool USE_BOT = false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -123,19 +123,16 @@ void writeRAM(int teclas[], const VecInt_t& indexes)
 ///////////////////////////////////////////////////////////////////////////////
 /// Do Next Agent Step
 ///////////////////////////////////////////////////////////////////////////////
-VecDouble_t ram_to_VecDouble() {
+VecDouble_t ram_to_VecDouble(const VecInt_t& indexes) {
    const auto& RAM = alei.getRAM();
-   uint8_t add = 0;   
 
-   VecDouble_t result(8*16);
-   for (std::size_t i = 0; i < 8; i++)
+   VecDouble_t result(indexes.size()); 
+
+   const auto& RAM = alei.getRAM();
+   for(const auto& i: indexes)
    {
-      for (std::size_t j = 0; j < 16; j++, add++)
-      {
-         // std::fprintf(file, "%02X;", RAM.get(add));
-         result[add] = RAM.get(add);
-      }
-   }   
+      result[i] = RAM.get(i);
+   }
    
    return result;
 }

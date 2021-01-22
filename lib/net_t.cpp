@@ -42,6 +42,7 @@ VecPair_t Net_t::fit(
     , MatDouble_t const &X_test
     , MatDouble_t const &y_test
     , uint8_t const &verbose
+    , double const &regularization_lambda
 )
 {
     // history[epoch] = pair(train_error, test_error)
@@ -108,7 +109,7 @@ VecPair_t Net_t::fit(
                 VecDouble_t w(m_layers[L][wi]);
                 last_layer[wi] = w;
             }
-            update_weights(m_layers[L], outputs[L - 1].second, delta, lr);
+            update_weights(m_layers[L], outputs[L - 1].second, delta, lr, regularization_lambda);
 
             for (int l = L - 1; l > -1; --l)
             {
@@ -125,11 +126,11 @@ VecPair_t Net_t::fit(
                 }
                 if (l == 0)
                 {
-                    update_weights(m_layers[l], X_train[i], delta, lr);
+                    update_weights(m_layers[l], X_train[i], delta, lr, regularization_lambda);
                 }
                 else
                 {
-                    update_weights(m_layers[l], outputs[l - 1].second, delta, lr);
+                    update_weights(m_layers[l], outputs[l - 1].second, delta, lr, regularization_lambda);
                 }
             }                       
         }
@@ -368,8 +369,8 @@ VecDouble_t Net_t::calculate_hidden_delta(VecDouble_t const &a, MatDouble_t cons
     return result;
 }
 
-void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr)
-{
+void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr, double const &lambda)
+{    
     for (size_t i{0}; i < layer.size(); ++i)
     {
         // update bias
@@ -377,11 +378,12 @@ void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t
         layer[i][0] = layer[i][0] - grad;
         print("--Grad", i, 0, " \t\t", grad, "\n");
 
-        // update weights
+        // update weights        
         for (std::size_t j = 1; j < layer[0].size(); ++j)
         {
-            grad = a[j - 1] * delta[i] * lr;
-            layer[i][j] = layer[i][j] - grad;
+            double regularization = 2.0 * lambda * layer[i][j];
+            grad = a[j - 1] * delta[i] + regularization;
+            layer[i][j] = layer[i][j] - (lr * grad);
             print("--Grad", i, j, " \t\t", grad, "\n");
         }
     }

@@ -38,6 +38,7 @@ class Net_t {
             , MatDouble_t const &X_test
             , MatDouble_t const &y_test
             , uint8_t const &verbose = 0
+            , double const &regularization_lambda = 0.0
         );
 
         // Evaluates the network: returns its error (mean squared error)
@@ -93,7 +94,7 @@ class Net_t {
         //  a: vector of results of activation functions from previous layer [(X_i)^(l-1))
         //  delta: vector of deltas corresponding to each signal Sj of the given layer
         //  learning_rate: learning rate used for training
-        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate);            
+        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate, double const &lambda);            
 
         // Returns true if (a == b), throws Exception otherwise.
         bool checksize(int a, int b);

@@ -4,10 +4,11 @@
 #include "src/ale_interface.hpp"
 #include <SDL/SDL.h>
 #include "net_t.h"
+#include <unistd.h>
 
 // Global vars
-const double BOT_THRESHOLD = 0.15;
-const bool USE_BOT = !false;
+const double BOT_THRESHOLD = 0.2;
+const bool USE_BOT = false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -16,6 +17,25 @@ ALEInterface alei;
 ///////////////////////////////////////////////////////////////////////////////
 /// Get info from RAM
 ///////////////////////////////////////////////////////////////////////////////
+void readRamIndexes(const std::string& filename, VecInt_t& indexes)
+{
+   std::ifstream file;
+   file.open(filename);
+
+   if(!file.is_open())
+   {
+      throw std::runtime_error("[EXCEPTION]: File not found : " + filename);
+   }
+   std::string line("");           
+   
+   while(getline(file, line))
+   {                            
+      indexes.push_back( std::stoi(line) );
+   }       
+   
+   file.close();   
+}
+
 int getPlayerX() {
    return alei.getRAM().get(72) + ((rand() % 3) - 1);
 }
@@ -64,22 +84,27 @@ void showRAM()
    std::printf("\n====================================================\n");
 }
 
-void writeRAM(int teclas[])
+void writeRAM(int teclas[], const VecInt_t& indexes)
 {
    std::ofstream ram_file;
 
    ram_file.open("x.csv", std::ios::app);
    const auto& RAM = alei.getRAM();
-   uint8_t add = 0;   
-
-   for (std::size_t i = 0; i < 8; i++)
+   for(const auto& i: indexes)
    {
-      for (std::size_t j = 0; j < 16; j++, add++)
-      {
-         // std::fprintf(file, "%02X;", RAM.get(add));
-         ram_file << std::to_string(RAM.get(add)) << ",";
-      }
+      ram_file << std::to_string(RAM.get(i)) << ",";
    }
+
+   // uint8_t add = 0;   
+
+   // for (std::size_t i = 0; i < 8; i++)
+   // {
+   //    for (std::size_t j = 0; j < 16; j++, add++)
+   //    {
+   //       // std::fprintf(file, "%02X;", RAM.get(add));
+   //       ram_file << std::to_string(RAM.get(add)) << ",";
+   //    }
+   // }
    
    ram_file << std::endl;
    ram_file.close();
@@ -121,7 +146,11 @@ float playBot(Net_t& bot, int teclas[]) {
    VecDouble_t RAM = ram_to_VecDouble();
    VecDouble_t prediction = bot.predict(RAM);
 
-   print(prediction);
+   // print("\n");
+   // print(prediction);
+   // print("\n");
+
+   // sleep(1);
 
    // bot
    if (prediction[0] > BOT_THRESHOLD) // UP
@@ -133,28 +162,40 @@ float playBot(Net_t& bot, int teclas[]) {
    if (prediction[1] > BOT_THRESHOLD) // SPACE
    {
       teclas[1] = 1;
-      if (prediction[2] > BOT_THRESHOLD) // LEFT
+      if (prediction[2] > prediction[3]) // LEFT > RIGHT
       {
-         teclas[2] = 1;
-         reward += alei.act(PLAYER_A_LEFTFIRE);
-      }        
-      else if (prediction[3] > BOT_THRESHOLD) //RIGHT
+         if (prediction[2] > BOT_THRESHOLD)
+         {
+            reward += alei.act(PLAYER_A_LEFTFIRE);
+            teclas[2] = 1;
+         }
+      }
+      else
       {
-         teclas[3] = 1;
-         reward += alei.act(PLAYER_A_RIGHTFIRE);
-      }   
+         if (prediction[3] > BOT_THRESHOLD)
+         {
+            reward += alei.act(PLAYER_A_RIGHTFIRE);
+            teclas[3] = 1;
+         }
+      }  
    }
    else
    {
-      if (prediction[2] > BOT_THRESHOLD)
+      if (prediction[2] > prediction[3]) // LEFT > RIGHT
       {
-         reward += alei.act(PLAYER_A_LEFT);
-         teclas[2] = 1;
-      }        
-      else if (prediction[3] > BOT_THRESHOLD)
+         if (prediction[2] > BOT_THRESHOLD)
+         {
+            reward += alei.act(PLAYER_A_LEFT);
+            teclas[2] = 1;
+         }
+      }
+      else
       {
-         reward += alei.act(PLAYER_A_RIGHT);
-         teclas[3] = 1;
+         if (prediction[3] > BOT_THRESHOLD)
+         {
+            reward += alei.act(PLAYER_A_RIGHT);
+            teclas[3] = 1;
+         }
       } 
    }
 
@@ -203,7 +244,7 @@ float playManual(int teclas[]) {
    return reward;
 }
 
-float agentStep(Net_t& bot, bool useBot) {
+float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    float reward = 0;
 
    showRAM();
@@ -225,7 +266,7 @@ float agentStep(Net_t& bot, bool useBot) {
    else
       reward += playManual(teclas);
    
-   writeRAM(teclas);
+   writeRAM(teclas, indexes);
 
    return (reward + alei.act(PLAYER_A_NOOP));
 }
@@ -266,12 +307,14 @@ int main(int argc, char **argv) {
    cls();
    
    Net_t bot("../ale_bot.csv");
+   VecInt_t indexes;
+   readRamIndexes("../ramindexes.txt", indexes);
 
    for (step = 0; 
         !alei.game_over() && step < maxSteps; 
         ++step) 
    {
-      totalReward += agentStep(bot, USE_BOT);
+      totalReward += agentStep(bot, USE_BOT, indexes);
    }
 
    std::cout << "Steps: " << step << std::endl;

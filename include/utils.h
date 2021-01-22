@@ -14,6 +14,7 @@
 #include <algorithm>    // std::random_shuffle
 #include <cstdlib>      // std::rand, std::srand
 
+using VecInt_t          = std::vector<int>;
 using VecDouble_t       = std::vector<double>;      // = weight conection
 using MatDouble_t       = std::vector<VecDouble_t>; // = layer
 using VecPair_t         = std::vector<std::pair<double, double>>;
@@ -129,6 +130,18 @@ static void vecPair_to_CSV(const std::string &filename, const VecPair_t& vec) {
 
     for(auto& v: vec) {
         file << std::to_string(v.first) << "," << std::to_string(v.second) << std::endl;
+    }
+
+    file.close();
+}
+
+static void vecInt_to_txt(const std::string &filename, const VecInt_t& vec)
+{
+    std::ofstream file;
+    file.open(filename);
+
+    for(auto& v: vec) {
+        file << v << std::endl;
     }
 
     file.close();

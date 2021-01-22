@@ -1,10 +1,56 @@
 #include "utils.h"
 #include "net_t.h"
 
-const int EPOCHS            = 100;
+const int EPOCHS            = 250;
 const double LEARNING_RATE  = 0.01;
-const int INPUT_SIZE        = 128;
 const int OUTPUT_SIZE       = 4;
+uint16_t INPUT_SIZE         = 0;
+
+void heatMap(const MatDouble_t& data) 
+{
+    // Initialize heat map
+    VecDouble_t heat(data[0].size(), 0.0);
+        
+    for(const auto& v: data)
+    {
+        for(std::size_t i = 0; i < heat.size(); ++i)
+        {
+            if (v[i] != data[0][i]) // ExampleData[i] != initialData[i]
+            {
+                heat[i] += (100.0/data.size());
+            }
+        }
+    }
+
+    uint8_t add = 0;
+    std::printf("\n===================== HEAT MAP =====================");
+    std::printf("\nAD | 000 001 002 003 004 005 006 007 008 009 00A 00B 00C 00D 00E 00F");
+    std::printf("\n====================================================");
+    for (std::size_t i = 0; i < 8; i++)
+    {
+        std::printf("\n%02X | ", add);
+        for (std::size_t j = 0; j < 16; j++, add++)
+        {
+            std::printf("%03.0f ", heat[add]);
+        }
+    }
+    std::printf("\n====================================================\n");
+
+    VecInt_t indexes;
+    std::cout << "Changing indexes: ( ";        
+    for(std::size_t i = 0; i < heat.size(); ++i)
+    {
+        if (heat[i] > 1.0)
+        {            
+            indexes.push_back(i);
+            std::cout << i << " ";
+        }
+    }
+    std::cout << ")" << std::endl;
+    std::cout << std::endl << "TOTAL: " << indexes.size() << std::endl;
+
+    vecInt_to_txt("ramindexes.txt", indexes);
+}
 
 void countClicks(const MatDouble_t& steps) {
     //
@@ -89,14 +135,16 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
     return 1000.0 * (end - start) / CLOCKS_PER_SEC;
 }
 
-void run() {
-    Net_t net{ INPUT_SIZE, 32, 16, 8, OUTPUT_SIZE };
-
+void run() 
+{    
     auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
     auto [X_test, y_test] = readDataset("x_test.csv", "y_test.csv");    
 
-    countClicks(y_train);
+    // countClicks(y_train);
+    // heatMap(X_train);    
 
+    INPUT_SIZE = (int) X_train[0].size();
+    Net_t net{ INPUT_SIZE, 64, 32, 16, 8, OUTPUT_SIZE };
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 
     const double evaluate = evaluate_time(net, X_test, y_test);

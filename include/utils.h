@@ -41,12 +41,6 @@ static void fillVectorRandom(VecDouble_t &vec, double min, double max)
     }
 }
 
-static void myshuffle(auto& collection)
-{    
-    auto rng = std::default_random_engine { 517 };
-    std::shuffle ( collection.begin(), collection.end(), rng);    
-}
-
 template <class T>
 static void print(T const &t)
 {   
@@ -167,4 +161,23 @@ static void copySize(std::vector<MatDouble_t> &dest, std::vector<MatDouble_t> co
         }
         dest.push_back(mat);            
     }
+}
+
+static void readRamIndexes(const std::string& filename, VecInt_t& indexes)
+{
+    std::ifstream file;
+    file.open(filename);
+
+    if(!file.is_open())
+    {      
+        throw std::runtime_error("[EXCEPTION]: File not found : " + filename);
+    }
+    std::string line("");           
+
+    while(getline(file, line))
+    {                            
+        indexes.push_back( std::stoi(line) );
+    }       
+
+    file.close();   
 }

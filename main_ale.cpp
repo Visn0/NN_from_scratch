@@ -3,7 +3,7 @@
 #include <string.h>
 
 const double REGULARIZATION_LAMBDA  = 0.0001;
-const uint32_t BATCH_SIZE           = 1;
+const uint32_t BATCH_SIZE           = 32;
 const int EPOCHS                    = 100;
 const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 4;
@@ -14,6 +14,7 @@ void heatMap(const MatDouble_t& data, const double& percentage)
     // Initialize heat map
     VecDouble_t heat(data[0].size(), 0.0);
         
+    // Calculate % of times that a memory address changes
     for(const auto& v: data)
     {
         for(std::size_t i = 0; i < heat.size(); ++i)
@@ -88,10 +89,7 @@ void countClicks(const MatDouble_t& steps) {
 PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_filename)
 {
     MatDouble_t X ( CSV_to_MatDouble(X_filename, INPUT_SIZE) );
-    MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );    
-    
-    myshuffle(X);
-    myshuffle(y);
+    MatDouble_t y ( CSV_to_MatDouble(y_filename, OUTPUT_SIZE) );         
 
     std::cout << "DATASET READ SUCCESFULLY" << std::endl;
     return std::make_pair(X, y);
@@ -141,20 +139,12 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 }
 
 void run(int argc, char* argv[]) 
-{    
+{   
     auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
     auto [X_test, y_test] = readDataset("x_test.csv", "y_test.csv");    
 
-    // countClicks(y_train);
-
-    if (argc > 2 && strcmp(argv[1], "-heat") == 0)
-    {
-        heatMap(X_train, atof(argv[2]));    
-        return;
-    }
-
     INPUT_SIZE = X_train[0].size();
-    std::cout << "INPUT_SIZE: " << X_train[0].size() << std::endl;
+    std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
     Net_t net{ INPUT_SIZE, 64, 32, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
@@ -172,7 +162,15 @@ int main(int argc, char* argv[])
 {    
     try
     {
-        run(argc, argv);
+        if (argc > 2 && strcmp(argv[1], "-heat") == 0)
+        {
+            auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
+            heatMap(X_train, atof(argv[2]));                
+        } 
+        else
+        {
+            run(argc, argv);
+        }
     }
     catch (std::exception &e)
     {

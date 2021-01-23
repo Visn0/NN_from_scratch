@@ -75,6 +75,16 @@ class Net_t {
         // Calculates the sigmoid function for every value of the VecDouble
         VecDouble_t sigmoid(VecDouble_t const &v) const;
 
+        void backpropagation_without_update_weights (
+              std::vector<MatDouble_t>& gradients
+            , std::vector<VecDouble_t> const &outputs
+            , VecDouble_t const &Xi
+            , VecDouble_t const &yi
+            , double const &regularization_lambda
+        );
+
+        void feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi, VecDouble_t const &yi);
+
         // Feeds the network forward, applying the activation function to the corresponding signals Sj
         //  x: input dataset
         VecDouble_t feedforward(VecDouble_t const &x) const;

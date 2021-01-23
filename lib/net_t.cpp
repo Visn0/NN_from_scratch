@@ -74,54 +74,14 @@ VecPair_t Net_t::fit(
                 print("~~~~~~~~~~~~~~\n");
 
                 print("NETWORK \n");
-                for (size_t wi{0}; wi < m_layers.size(); ++wi)
-                {
-                    print(m_layers[wi]);
-                }
+                print(*this, "\n");
+                // if (DEBUG) std::cout << *this << std::endl;
 
-                // feedforward
-                print("\n~~~~~~~~~~~~~~\n");
-                print("FORWARD \n");
-                print("~~~~~~~~~~~~~~\n");
+                // Sets the outputs of each neuron of each layer in the outputs variable
+                feedforward_train(outputs, X_train[i], y_train[i]);
 
-                VecDouble_t result(X_train[i]);
-                print("Input \t\t", result);
-                print("Expected \t", y_train[i]);
-
-                for (size_t wi{0}; wi < m_layers.size(); ++wi)
-                {
-                    result.resize(result.size() + 1);
-                    std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
-                    result[0] = 1.0;
-
-                    VecDouble_t z = multiplyT(result, m_layers[wi]);
-                    result = sigmoid(z);
-                    outputs.push_back(result);
-
-                    print("Raw", wi, "\t\t", z);
-                    print("Output", wi, "\t", result);
-                }
-
-                print("\n~~~~~~~~~~~~~~\n");
-                print("BACKPROPAGATION \n");
-                print("~~~~~~~~~~~~~~\n");
-
-                VecDouble_t last_delta = calculate_last_delta(outputs[L], y_train[i]);
-                print("Delta", L, "\t\t", last_delta); 
-                calculate_gradients(gradients[L], m_layers[L], outputs[L-1], last_delta, regularization_lambda);
-                
-                for (int l = L - 1; l > 0; --l)
-                {
-                    last_delta = calculate_hidden_delta(outputs[l], m_layers[l+1], last_delta);
-                    print("Delta", l, "\t\t", last_delta);
-                    
-                    calculate_gradients(gradients[l], m_layers[l], outputs[l-1], last_delta, regularization_lambda);                    
-                }  
-
-                // Update weights related to the input layer, whose activation coeficients Xi are the input values.
-                last_delta = calculate_hidden_delta(outputs[0], m_layers[1], last_delta);
-                print("Delta", 0, "\t\t", last_delta);
-                calculate_gradients(gradients[0], m_layers[0], X_train[i], last_delta, regularization_lambda);
+                // Sets acumulations of the gradients for all weight in the Neural Network for the given example Xi, yi
+                backpropagation_without_update_weights(gradients, outputs, X_train[i], y_train[i], regularization_lambda);                                
             }
 
             update_weights(gradients, lr, batch_size);          
@@ -314,6 +274,60 @@ VecDouble_t Net_t::sigmoid(VecDouble_t const &v) const
         e = sigmoid(e);
 
     return result;
+}
+
+void Net_t::backpropagation_without_update_weights(
+      std::vector<MatDouble_t>& gradients
+    , std::vector<VecDouble_t> const &outputs
+    , VecDouble_t const &Xi
+    , VecDouble_t const &yi
+    , double const &regularization_lambda
+)
+{
+    print("\n~~~~~~~~~~~~~~\n");
+    print("BACKPROPAGATION \n");
+    print("~~~~~~~~~~~~~~\n");
+    const int L = m_layers.size() - 1;
+
+    VecDouble_t last_delta = calculate_last_delta(outputs[L], yi);
+    print("Delta", L, "\t\t", last_delta); 
+    calculate_gradients(gradients[L], m_layers[L], outputs[L-1], last_delta, regularization_lambda);
+    
+    for (int l = L - 1; l > 0; --l)
+    {
+        last_delta = calculate_hidden_delta(outputs[l], m_layers[l+1], last_delta);
+        print("Delta", l, "\t\t", last_delta);                    
+        calculate_gradients(gradients[l], m_layers[l], outputs[l-1], last_delta, regularization_lambda);                    
+    }  
+
+    // Update weights related to the input layer, whose activation coeficients Xi are the input values.
+    last_delta = calculate_hidden_delta(outputs[0], m_layers[1], last_delta);
+    print("Delta", 0, "\t\t", last_delta);
+    calculate_gradients(gradients[0], m_layers[0], Xi, last_delta, regularization_lambda);
+}
+
+void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi, VecDouble_t const &yi)
+{    
+    print("\n~~~~~~~~~~~~~~\n");
+    print("FORWARD \n");
+    print("~~~~~~~~~~~~~~\n");
+
+    VecDouble_t result(Xi);
+    print("Input \t\t", result);
+    print("Expected \t", yi);
+
+    for (size_t wi{0}; wi < m_layers.size(); ++wi)
+    {
+        result.resize(result.size() + 1);
+        std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
+        result[0] = 1.0;
+
+        VecDouble_t z = multiplyT(result, m_layers[wi]);
+        result = sigmoid(z);
+        outputs.push_back(result);
+
+        print("Output", wi, "\t", result);
+    }
 }
 
 VecDouble_t Net_t::feedforward(VecDouble_t const &x) const

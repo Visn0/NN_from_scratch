@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 // Global vars
-const double BOT_THRESHOLD = 0.2;
-const bool USE_BOT = false;
+const double BOT_THRESHOLD = 0.5;
+const bool USE_BOT = !false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -124,8 +124,7 @@ void writeRAM(int teclas[], const VecInt_t& indexes)
 /// Do Next Agent Step
 ///////////////////////////////////////////////////////////////////////////////
 VecDouble_t ram_to_VecDouble(const VecInt_t& indexes) {
-   const auto& RAM = alei.getRAM();
-
+   
    VecDouble_t result(indexes.size()); 
 
    const auto& RAM = alei.getRAM();
@@ -137,10 +136,10 @@ VecDouble_t ram_to_VecDouble(const VecInt_t& indexes) {
    return result;
 }
 
-float playBot(Net_t& bot, int teclas[]) {
+float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    float reward = 0.0;
 
-   VecDouble_t RAM = ram_to_VecDouble();
+   VecDouble_t RAM = ram_to_VecDouble(indexes);
    VecDouble_t prediction = bot.predict(RAM);
 
    // print("\n");
@@ -259,7 +258,7 @@ float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    }
 
    if(useBot)
-      reward += playBot(bot, teclas);
+      reward += playBot(bot, teclas, indexes);
    else
       reward += playManual(teclas);
    

@@ -47,9 +47,9 @@ VecPair_t Net_t::fit(
 )
 {
     // history[epoch] = pair(train_error, test_error)
-    VecPair_t history(epochs);
-    const std::size_t maxBatches = X_train.size() % batch_size == 0 ? (X_train.size()/batch_size) : (X_train.size()/batch_size)+1;
-    print(maxBatches);
+    VecPair_t history(epochs);    
+    const std::size_t maxBatches = X_train.size() / batch_size + (int)(X_train.size() % batch_size != 0);
+    print("MAX_BATCHES: ", maxBatches, "\n");
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {

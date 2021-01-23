@@ -156,3 +156,16 @@ static void vecInt_to_txt(const std::string &filename, const VecInt_t& vec)
 
     file.close();
 }
+
+static void copySize(std::vector<MatDouble_t> &dest, std::vector<MatDouble_t> const &src)
+{
+    for (auto i = 0; i < src.size(); ++i)
+    {
+        MatDouble_t mat(src[i].size());
+        for (auto j = 0; j < src[i].size(); ++j)
+        {
+            mat[j].resize(src[i][j].size());
+        }
+        dest.push_back(mat);            
+    }
+}

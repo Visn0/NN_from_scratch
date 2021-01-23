@@ -61,25 +61,10 @@ VecPair_t Net_t::fit(
         for(std::size_t batch = 0; batch < maxBatches; ++batch)
         {        
             std::vector<MatDouble_t> gradients; 
-            for (auto i = 0; i < m_layers.size(); ++i)
-            {
-                MatDouble_t layer_g(m_layers[i].size());
-                for (auto j = 0; j < m_layers[i].size(); ++j)
-                {
-                    layer_g[j].resize(m_layers[i][j].size()); // +threshold
-                }
-                gradients.push_back(layer_g);            
-            }
+            copySize(gradients, m_layers);            
             print("gradientes");
 
-            // VecDouble_t last_delta (y_train[0].size());
-            // MatDouble_t hidden_delta;
-            VecPairVecDouble_t outputs; // pair< raw output (z), output through activation function (a) > 
-
-            // for (int l = 0; l < L; ++l)
-            // {
-            //     hidden_delta.push_back( VecDouble_t(m_layers[l].size() - 1) );
-            // }  
+            std::vector<VecDouble_t> outputs; // output through activation function (a)
 
             std::size_t maxExample = batch * batch_size + batch_size;
             for (std::size_t i = batch * batch_size; i < X_train.size() && i < maxExample; ++i) // iterations of train in 1 batch
@@ -111,7 +96,7 @@ VecPair_t Net_t::fit(
 
                     VecDouble_t z = multiplyT(result, m_layers[wi]);
                     result = sigmoid(z);
-                    outputs.push_back(std::make_pair(z, result));
+                    outputs.push_back(result);
 
                     print("Raw", wi, "\t\t", z);
                     print("Output", wi, "\t", result);
@@ -121,33 +106,22 @@ VecPair_t Net_t::fit(
                 print("BACKPROPAGATION \n");
                 print("~~~~~~~~~~~~~~\n");
 
-                VecDouble_t z = outputs[L].first;
-                VecDouble_t a = outputs[L].second;
-
-                VecDouble_t last_delta_partial = calculate_last_delta(a, y_train[i]);
-                print("Delta", L, "\t\t", last_delta_partial);
-                // addVecDouble_t(last_delta, last_delta_partial);    
-                calculate_gradients(gradients[L], m_layers[L], outputs[L-1].second, last_delta_partial, regularization_lambda);
+                VecDouble_t last_delta = calculate_last_delta(outputs[L], y_train[i]);
+                print("Delta", L, "\t\t", last_delta); 
+                calculate_gradients(gradients[L], m_layers[L], outputs[L-1], last_delta, regularization_lambda);
                 
-                for (int l = L - 1; l > -1; --l)
+                for (int l = L - 1; l > 0; --l)
                 {
-                    z = outputs[l].first;
-                    a = outputs[l].second;
-                    last_delta_partial = calculate_hidden_delta(a, m_layers[l+1], last_delta_partial);
-                    print("Delta", l, "\t\t", last_delta_partial);
-
-                    // print("HIDDEN DELTA", l, "\t\t", hidden_delta[l]);
-                    // addVecDouble_t(hidden_delta[l], last_delta_partial);
-
-                    if (l > 0)
-                    {
-                        calculate_gradients(gradients[l], m_layers[l], outputs[l-1].second, last_delta_partial, regularization_lambda);
-                    }                    
-                    else
-                    {
-                        calculate_gradients(gradients[l], m_layers[l], X_train[i], last_delta_partial, regularization_lambda);
-                    }
+                    last_delta = calculate_hidden_delta(outputs[l], m_layers[l+1], last_delta);
+                    print("Delta", l, "\t\t", last_delta);
+                    
+                    calculate_gradients(gradients[l], m_layers[l], outputs[l-1], last_delta, regularization_lambda);                    
                 }  
+
+                // Update weights related to the input layer, whose activation coeficients Xi are the input values.
+                last_delta = calculate_hidden_delta(outputs[0], m_layers[1], last_delta);
+                print("Delta", 0, "\t\t", last_delta);
+                calculate_gradients(gradients[0], m_layers[0], X_train[i], last_delta, regularization_lambda);
             }
 
             update_weights(gradients, lr, batch_size);          

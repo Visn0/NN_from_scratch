@@ -38,6 +38,7 @@ VecPair_t Net_t::fit(
       MatDouble_t const &X_train
     , MatDouble_t const &y_train
     , double const &lr
+    , uint32_t const& batch_size
     , std::size_t const &epochs
     , MatDouble_t const &X_test
     , MatDouble_t const &y_test

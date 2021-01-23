@@ -12,6 +12,7 @@ void run()
           X     // train dataset 
         , y     // train labels
         , 0.01  // learning rate
+        , 1     // batch size
         , 1     // epochs
         , X
         , y

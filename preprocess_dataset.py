@@ -13,29 +13,34 @@ from sklearn.model_selection import train_test_split
 def removeUnusedIndexes(X, indexes):
     X_res = list()    
 
-    # Iterates through the dataset examples
+    # Iterates through the dataset examples    
     for i in range(0, X.shape[0], 1):
-        x = list()    
+        x = np.take(X[i], indexes)  
         
         # Extracts only the necessary indexes of the example X[i]
-        for index in indexes:
-            x.append( X[i][index] )
+        # for index in indexes:
+        #     x.append( X[i:index] )
         
         X_res.append(x)
+        print(f'Finished example: {i}\t Shape: {x.shape}')
     
+    X_res = np.asarray(X_res)
     return X_res
 
 def save_dataset(X, y, label):
-    numpy.savetxt(f"X_{label}.csv", X, delimiter=",")
-    numpy.savetxt(f"y_{label}.csv", y, delimiter=",")
+    np.savetxt(f"X_{label}.csv", X, delimiter=",")
+    np.savetxt(f"y_{label}.csv", y, delimiter=",")
 
 def main():
     # Load the indexes that must be taken into account when training the Net
-    indexes = np.genfromtxt('ramindexes')
+    indexes = np.genfromtxt('ramindexes.txt', dtype=int)
     
     # Load the whole dataset X, y
     X = np.genfromtxt('x.csv', delimiter=',')
+    print(f'X shape: {X.shape}')
+
     y = np.genfromtxt('y.csv', delimiter=',')
+    print(f'y shape: {y.shape}')
     
     # Remove unused indexes from dataset (doesn't modify the original files)
     X = removeUnusedIndexes(X, indexes)

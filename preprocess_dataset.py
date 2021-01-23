@@ -28,18 +28,19 @@ def removeUnusedIndexes(X, indexes):
     return X_res
 
 def save_dataset(X, y, label):
-    np.savetxt(f"X_{label}.csv", X, delimiter=",")
-    np.savetxt(f"y_{label}.csv", y, delimiter=",")
+    np.savetxt(f"X_{label}.csv", X, delimiter=",", fmt='%i')
+    np.savetxt(f"y_{label}.csv", y, delimiter=",", fmt='%i')
 
 def main():
     # Load the indexes that must be taken into account when training the Net
     indexes = np.genfromtxt('ramindexes.txt', dtype=int)
     
     # Load the whole dataset X, y
-    X = np.genfromtxt('x.csv', delimiter=',')
+    X = np.genfromtxt('x.csv', delimiter=',', dtype=int)
     print(f'X shape: {X.shape}')
+    print(X)    
 
-    y = np.genfromtxt('y.csv', delimiter=',')
+    y = np.genfromtxt('y.csv', delimiter=',', dtype=int)
     print(f'y shape: {y.shape}')
     
     # Remove unused indexes from dataset (doesn't modify the original files)

@@ -9,6 +9,9 @@ MAIN=src
 main: $(MAIN)/main.cpp $(OBJ)
 	$(CC) $(OPTIONS) -I$(INCLUDEDIR) $(MAIN)/main.cpp $(OBJ) -o main
 
+test: main.cpp $(OBJ)
+	$(CC) $(OPTIONS) -I$(INCLUDEDIR) main.cpp $(OBJ) -o test
+
 ale: main_ale.cpp $(OBJ)
 	$(CC) $(OPTIONS) -I$(INCLUDEDIR) main_ale.cpp $(OBJ) -o main_ale
 

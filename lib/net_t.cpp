@@ -48,92 +48,109 @@ VecPair_t Net_t::fit(
 {
     // history[epoch] = pair(train_error, test_error)
     VecPair_t history(epochs);
+    const int L = m_layers.size() - 1;
+    const std::size_t maxBatches = X_train.size() % batch_size == 0 ? (X_train.size()/batch_size) : (X_train.size()/batch_size)+1;
+    print(maxBatches);
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
         print("\n####################################################\n");
         print("EPOCH:", epoch, "\n");
-        print("####################################################\n");
-        for (size_t i{0}; i < X_train.size(); ++i) // iterations of train
-        {
-            std::vector<std::pair<VecDouble_t,  // raw output (z)
-                                    VecDouble_t>> // output through activation function (a)
-                outputs;
-
-            print("\n#################\n");
-            print("Iteration", i, "\n");
-            print("~~~~~~~~~~~~~~\n");
-
-            print("NETWORK \n");
-            for (size_t wi{0}; wi < m_layers.size(); ++wi)
+        print("####################################################\n");       
+                               
+        for(std::size_t batch = 0; batch < maxBatches; ++batch)
+        {        
+            std::vector<MatDouble_t> gradients; 
+            for (auto i = 0; i < m_layers.size(); ++i)
             {
-                print(m_layers[wi]);
+                MatDouble_t layer_g(m_layers[i].size());
+                for (auto j = 0; j < m_layers[i].size(); ++j)
+                {
+                    layer_g[j].resize(m_layers[i][j].size()); // +threshold
+                }
+                gradients.push_back(layer_g);            
+            }
+            print("gradientes");
+
+            // VecDouble_t last_delta (y_train[0].size());
+            // MatDouble_t hidden_delta;
+            VecPairVecDouble_t outputs; // pair< raw output (z), output through activation function (a) > 
+
+            // for (int l = 0; l < L; ++l)
+            // {
+            //     hidden_delta.push_back( VecDouble_t(m_layers[l].size() - 1) );
+            // }  
+
+            std::size_t maxExample = batch * batch_size + batch_size;
+            for (std::size_t i = batch * batch_size; i < X_train.size() && i < maxExample; ++i) // iterations of train in 1 batch
+            {                
+                print("\n#################\n");
+                print("Example", i, "\n");
+                print("~~~~~~~~~~~~~~\n");
+
+                print("NETWORK \n");
+                for (size_t wi{0}; wi < m_layers.size(); ++wi)
+                {
+                    print(m_layers[wi]);
+                }
+
+                // feedforward
+                print("\n~~~~~~~~~~~~~~\n");
+                print("FORWARD \n");
+                print("~~~~~~~~~~~~~~\n");
+
+                VecDouble_t result(X_train[i]);
+                print("Input \t\t", result);
+                print("Expected \t", y_train[i]);
+
+                for (size_t wi{0}; wi < m_layers.size(); ++wi)
+                {
+                    result.resize(result.size() + 1);
+                    std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
+                    result[0] = 1.0;
+
+                    VecDouble_t z = multiplyT(result, m_layers[wi]);
+                    result = sigmoid(z);
+                    outputs.push_back(std::make_pair(z, result));
+
+                    print("Raw", wi, "\t\t", z);
+                    print("Output", wi, "\t", result);
+                }
+
+                print("\n~~~~~~~~~~~~~~\n");
+                print("BACKPROPAGATION \n");
+                print("~~~~~~~~~~~~~~\n");
+
+                VecDouble_t z = outputs[L].first;
+                VecDouble_t a = outputs[L].second;
+
+                VecDouble_t last_delta_partial = calculate_last_delta(a, y_train[i]);
+                print("Delta", L, "\t\t", last_delta_partial);
+                // addVecDouble_t(last_delta, last_delta_partial);    
+                calculate_gradients(gradients[L], m_layers[L], outputs[L-1].second, last_delta_partial, regularization_lambda);
+                
+                for (int l = L - 1; l > -1; --l)
+                {
+                    z = outputs[l].first;
+                    a = outputs[l].second;
+                    last_delta_partial = calculate_hidden_delta(a, m_layers[l+1], last_delta_partial);
+                    print("Delta", l, "\t\t", last_delta_partial);
+
+                    // print("HIDDEN DELTA", l, "\t\t", hidden_delta[l]);
+                    // addVecDouble_t(hidden_delta[l], last_delta_partial);
+
+                    if (l > 0)
+                    {
+                        calculate_gradients(gradients[l], m_layers[l], outputs[l-1].second, last_delta_partial, regularization_lambda);
+                    }                    
+                    else
+                    {
+                        calculate_gradients(gradients[l], m_layers[l], X_train[i], last_delta_partial, regularization_lambda);
+                    }
+                }  
             }
 
-            // feedforward
-            print("\n~~~~~~~~~~~~~~\n");
-            print("FORWARD \n");
-            print("~~~~~~~~~~~~~~\n");
-
-            VecDouble_t result(X_train[i]);
-            print("Input \t\t", result);
-            print("Expected \t", y_train[i]);
-
-            for (size_t wi{0}; wi < m_layers.size(); ++wi)
-            {
-                result.resize(result.size() + 1);
-                std::copy(result.rbegin() + 1, result.rend(), result.rbegin());
-                result[0] = 1.0;
-
-                VecDouble_t z = multiplyT(result, m_layers[wi]);
-                result = sigmoid(z);
-                outputs.push_back(std::make_pair(z, result));
-
-                print("Raw", wi, "\t\t", z);
-                print("Output", wi, "\t", result);
-            }
-
-            print("\n~~~~~~~~~~~~~~\n");
-            print("BACKPROPAGATION \n");
-            print("~~~~~~~~~~~~~~\n");
-            int L = m_layers.size() - 1;
-            VecDouble_t z = outputs[L].first;
-            VecDouble_t a = outputs[L].second;
-
-            VecDouble_t delta = calculate_last_delta(a, y_train[i]);
-            print("Delta", L, "\t\t", delta);
-
-            // save last layer to use the original weights in next layer
-            MatDouble_t last_layer(m_layers[L].size());
-            for (std::size_t wi = 0; wi < m_layers[L].size(); ++wi)
-            {
-                VecDouble_t w(m_layers[L][wi]);
-                last_layer[wi] = w;
-            }
-            update_weights(m_layers[L], outputs[L - 1].second, delta, lr, regularization_lambda);
-
-            for (int l = L - 1; l > -1; --l)
-            {
-                z = outputs[l].first;
-                a = outputs[l].second;
-                delta = calculate_hidden_delta(a, last_layer, delta);
-                print("Delta", l, "\t\t", delta);
-
-                last_layer = MatDouble_t(m_layers[l].size());
-                for (std::size_t wi = 0; wi < m_layers[l].size(); ++wi)
-                {
-                    VecDouble_t w(m_layers[l][wi]);
-                    last_layer[wi] = w;
-                }
-                if (l == 0)
-                {
-                    update_weights(m_layers[l], X_train[i], delta, lr, regularization_lambda);
-                }
-                else
-                {
-                    update_weights(m_layers[l], outputs[l - 1].second, delta, lr, regularization_lambda);
-                }
-            }                       
+            update_weights(gradients, lr, batch_size);          
         }
     
         const double train_error = evaluate(X_train, y_train);
@@ -370,22 +387,41 @@ VecDouble_t Net_t::calculate_hidden_delta(VecDouble_t const &a, MatDouble_t cons
     return result;
 }
 
-void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr, double const &lambda)
+void Net_t::calculate_gradients(MatDouble_t &gradients, MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lambda)
 {    
     for (size_t i{0}; i < layer.size(); ++i)
-    {
-        // update bias
-        double grad = delta[i] * lr;
-        layer[i][0] = layer[i][0] - grad;
-        print("--Grad", i, 0, " \t\t", grad, "\n");
+    {        
+        // update bias       
+        double regularization = 2.0 * lambda * layer[i][0]; 
+        gradients[i][0] += delta[i] + regularization;
+        print("--Grad", i, 0, " \t\t", gradients[i][0], "\n");
 
         // update weights        
         for (std::size_t j = 1; j < layer[0].size(); ++j)
         {
-            double regularization = 2.0 * lambda * layer[i][j];
-            grad = a[j - 1] * delta[i] + regularization;
-            layer[i][j] = layer[i][j] - (lr * grad);
+            regularization = 2.0 * lambda * layer[i][j];
+            double grad = a[j - 1] * delta[i] + regularization;
+            // layer[i][j] = layer[i][j] - (lr * grad);
+            gradients[i][j] += grad;
             print("--Grad", i, j, " \t\t", grad, "\n");
+        }
+    }
+}
+
+void Net_t::update_weights(std::vector<MatDouble_t> const &gradients, double const &lr, uint32_t const& batch_size)
+{    
+    // Select layer
+    for(std::size_t l = 0; l < m_layers.size(); ++l)
+    {
+        // Select weights of signal Sj (row)
+        for (size_t s = 0; s < m_layers[l].size(); ++s)
+        {       
+            // Select weigth of signal (column)
+            for (std::size_t w = 0; w < m_layers[l][s].size(); ++w)
+            {                
+                // wij = wij - lr*gradient
+                m_layers[l][s][w] = m_layers[l][s][w] - (lr * gradients[l][s][w]/batch_size);
+            }
         }
     }
 }
@@ -399,5 +435,18 @@ bool Net_t::checksize(int a, int b)
     }
 
     return true;
+}
+
+void Net_t::addVecDouble_t(VecDouble_t& a, VecDouble_t const &b)
+{
+    if (a.size() !=  b.size()) {
+        print("NO SON IGUALES: a=", a.size(), " b=", b.size());
+        exit(1);
+    }
+
+    for(std::size_t i = 0; i < a.size(); ++i)
+    {
+        a[i] += b[i];
+    }
 }
 // ######################## END AUXILIAR METHODS ########################

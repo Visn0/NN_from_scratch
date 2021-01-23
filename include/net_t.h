@@ -91,11 +91,19 @@ class Net_t {
         VecDouble_t calculate_hidden_delta(VecDouble_t const &a, MatDouble_t const &last_layer, VecDouble_t const &deltas);
 
         // Updates weights in backpropagation
-        //  layer: layers whose weights must be updated
-        //  a: vector of results of activation functions from previous layer [(X_i)^(l-1))
-        //  delta: vector of deltas corresponding to each signal Sj of the given layer
+        //  gradients: matrix of gradients (1 per weight of the layer of the Neural Network)
+        //  layer: matrix of gradients (1 per weight of the layer of the Neural Network)
+        //  a: outputs of the previous layer
+        //  delta: deltas for the given layer
+        //  lambda: L2 regularization lambda 
+        void calculate_gradients(MatDouble_t &gradients, MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lambda);
+
+        // Updates weights in backpropagation
+        //  gradients: matrix of gradients (1 per weight in the Neural Network)
         //  learning_rate: learning rate used for training
-        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate, double const &lambda);            
+        void update_weights(std::vector<MatDouble_t> const &gradients, double const &lr, uint32_t const& batch_size);         
+
+        void addVecDouble_t(VecDouble_t& a, VecDouble_t const &b);
 
         // Returns true if (a == b), throws Exception otherwise.
         bool checksize(int a, int b);

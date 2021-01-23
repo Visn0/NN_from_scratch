@@ -14,11 +14,12 @@
 #include <algorithm>    // std::random_shuffle
 #include <cstdlib>      // std::rand, std::srand
 
-using VecInt_t          = std::vector<int>;
-using VecDouble_t       = std::vector<double>;      // = weight conection
-using MatDouble_t       = std::vector<VecDouble_t>; // = layer
-using VecPair_t         = std::vector<std::pair<double, double>>;
-using PairMatDouble_t   = std::pair<MatDouble_t, MatDouble_t>;
+using VecInt_t              = std::vector<int>;
+using VecDouble_t           = std::vector<double>;      // = weight conection
+using MatDouble_t           = std::vector<VecDouble_t>; // = layer
+using VecPair_t             = std::vector<std::pair<double, double>>;
+using PairMatDouble_t       = std::pair<MatDouble_t, MatDouble_t>;
+using VecPairVecDouble_t    = std::vector<std::pair<VecDouble_t, VecDouble_t>>;
 
 const bool DEBUG = false;
 

@@ -3,6 +3,7 @@
 #include <string.h>
 
 const double REGULARIZATION_LAMBDA  = 0.0001;
+const uint32_t BATCH_SIZE           = 1;
 const int EPOCHS                    = 100;
 const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 4;
@@ -112,10 +113,11 @@ double fit_time(
               X_train
             , y_train
             , LEARNING_RATE
+            , BATCH_SIZE
             , EPOCHS     
             , X_test
             , y_test
-            , 1 // verbose,
+            , 1 // verbose,            
             , REGULARIZATION_LAMBDA
         )
     );

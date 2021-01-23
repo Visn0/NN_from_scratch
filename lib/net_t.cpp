@@ -30,6 +30,10 @@ Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
     }
 }
 
+Net_t::Net_t(std::string const &filename) {
+    load_model(filename);
+}
+
 VecPair_t Net_t::fit(
       MatDouble_t const &X_train
     , MatDouble_t const &y_train
@@ -37,6 +41,8 @@ VecPair_t Net_t::fit(
     , std::size_t const &epochs
     , MatDouble_t const &X_test
     , MatDouble_t const &y_test
+    , uint8_t const &verbose
+    , double const &regularization_lambda
 )
 {
     // history[epoch] = pair(train_error, test_error)
@@ -103,7 +109,7 @@ VecPair_t Net_t::fit(
                 VecDouble_t w(m_layers[L][wi]);
                 last_layer[wi] = w;
             }
-            update_weights(m_layers[L], outputs[L - 1].second, delta, lr);
+            update_weights(m_layers[L], outputs[L - 1].second, delta, lr, regularization_lambda);
 
             for (int l = L - 1; l > -1; --l)
             {
@@ -120,11 +126,11 @@ VecPair_t Net_t::fit(
                 }
                 if (l == 0)
                 {
-                    update_weights(m_layers[l], X_train[i], delta, lr);
+                    update_weights(m_layers[l], X_train[i], delta, lr, regularization_lambda);
                 }
                 else
                 {
-                    update_weights(m_layers[l], outputs[l - 1].second, delta, lr);
+                    update_weights(m_layers[l], outputs[l - 1].second, delta, lr, regularization_lambda);
                 }
             }                       
         }
@@ -132,6 +138,18 @@ VecPair_t Net_t::fit(
         const double train_error = evaluate(X_train, y_train);
         const double test_error  = evaluate(X_test, y_test);
         history[epoch] = std::make_pair( train_error, test_error ); 
+
+        switch (verbose)
+        {
+            case 1:
+                std::cout << "Epoch " << std::to_string(epoch);
+                std::cout << ": train_error=" << std::to_string(train_error);
+                std::cout << "\ttest_error=" << std::to_string(test_error);
+                std::cout << std::endl;
+                break;
+            
+            default: break;            
+        }
     }
 
     return history;
@@ -156,7 +174,98 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     return error;
 }
 
-std::ostream & operator<<(std::ostream &os, const Net_t &net) {
+VecDouble_t Net_t::predict(VecDouble_t const &X) const {
+    // MatDouble_t results;
+
+    // for(const auto& v: X) 
+    // {
+    //     results.push_back( feedforward(v) );
+    // }
+
+    return feedforward(X);
+}
+
+void Net_t::save_model(std::string const &filename) const{
+    std::ofstream file;
+    file.open(filename, std::ios::out);
+
+    for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {        
+        for(std::size_t signal_j = 0; signal_j < m_layers[layer].size(); ++signal_j) {
+            std::string signal_str{ std::to_string(signal_j) };            
+
+            auto* signal_ref = &m_layers[layer][signal_j];
+
+            file << layer; // layer numbner
+            file << "," <<  signal_ref->size(); // Number of parameters in the signal Sj
+            
+            for(std::size_t weight = 0; weight < signal_ref->size(); ++weight) {                                                
+                file << "," << (*signal_ref)[weight]; // weigth ij
+            }
+
+            file << std::endl;
+        }        
+    }
+
+    file.close();
+    std::cout << "Model saved correctly: " << filename << std::endl;
+    // std::cout << "---------SAVE MODEL" << std::endl;
+    // std::cout << *this << std::endl << std::endl;
+}
+
+void Net_t::load_model(std::string const &filename) {    
+    m_layers.clear();
+    
+    std::ifstream file;
+    file.open(filename);
+
+    if(!file.is_open())
+    {
+        throw std::runtime_error("[EXCEPTION]: File not found : " + filename);
+    }    
+
+    std::string line;                
+    std::istringstream sline;       
+    
+    std::string prevLayer;
+    std::string value;
+
+    MatDouble_t layer;
+    while(getline(file, line))
+    {                            
+        sline.clear();
+        sline.str(line);
+
+        // Read layer number
+        getline(sline, value, ',');
+
+        if (value > prevLayer)
+        {
+            prevLayer = value;
+            if (layer.size() > 0)
+                m_layers.push_back(layer);
+            layer.clear();
+        }
+
+        // Read number of params in the signal Sj
+        getline(sline, value, ',');
+
+        VecDouble_t signal_j( std::stoi(value) );            
+        for(int i = 0; i < signal_j.size(); ++i)
+        {            
+            getline(sline, value, ',') ;
+            signal_j[i] = std::stod(value);                     
+        }
+
+        layer.push_back(signal_j);
+    }       
+
+    file.close();
+    m_layers.push_back(layer);    
+    // std::cout << "---------LOAD MODEL" << std::endl;
+    // std::cout << *this << std::endl;
+}
+
+std::ostream & operator<<(std::ostream &os, const Net_t &net) {    
     for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
         os << "### begin Layer traspose " << std::to_string(layer) << " ###" << std::endl;
 
@@ -260,8 +369,8 @@ VecDouble_t Net_t::calculate_hidden_delta(VecDouble_t const &a, MatDouble_t cons
     return result;
 }
 
-void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr)
-{
+void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &lr, double const &lambda)
+{    
     for (size_t i{0}; i < layer.size(); ++i)
     {
         // update bias
@@ -269,30 +378,14 @@ void Net_t::update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t
         layer[i][0] = layer[i][0] - grad;
         print("--Grad", i, 0, " \t\t", grad, "\n");
 
-        // update weights
+        // update weights        
         for (std::size_t j = 1; j < layer[0].size(); ++j)
         {
-            grad = a[j - 1] * delta[i] * lr;
-            layer[i][j] = layer[i][j] - grad;
+            double regularization = 2.0 * lambda * layer[i][j];
+            grad = a[j - 1] * delta[i] + regularization;
+            layer[i][j] = layer[i][j] - (lr * grad);
             print("--Grad", i, j, " \t\t", grad, "\n");
         }
-    }
-}
-
-double Net_t::randDouble(double min, double max)
-{
-    static std::random_device dev;
-    static std::mt19937 rng(0); //dev()); // random number generator
-    static std::uniform_real_distribution<double> dist(min, max);
-
-    return dist(rng);
-}
-
-void Net_t::fillVectorRandom(VecDouble_t &vec, double min, double max)
-{
-    for (auto &v : vec)
-    {
-        v = randDouble(min, max);
     }
 }
 

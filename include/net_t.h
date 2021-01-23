@@ -24,6 +24,8 @@ class Net_t {
         //  e.g. {2, 3, 1} -> 1 layer with 2 input neurons, 1 hidden layer with 3 neurons, 1 output layer with 1 neuron
         explicit Net_t(std::initializer_list<uint16_t> const &layers);
 
+        explicit Net_t(std::string const &filename);
+
         // Fits the Neural Network
         //  X: input dataset
         //  y: input labels
@@ -35,12 +37,23 @@ class Net_t {
             , std::size_t const &epochs
             , MatDouble_t const &X_test
             , MatDouble_t const &y_test
+            , uint8_t const &verbose = 0
+            , double const &regularization_lambda = 0.0
         );
 
         // Evaluates the network: returns its error (mean squared error)
         //  X: input dataset
         //  y: input labels
         double evaluate(MatDouble_t const &X, MatDouble_t const &y);
+
+        VecDouble_t predict(VecDouble_t const &X) const;
+
+        // Saves the model weights and architecture in the specified file in CSV format.
+        // Each line of the file represents a signal Sj that contains:
+        //  LayerNumber NumberOfParamsInTheSignal,wij,wi+1j,wi+nj
+        void save_model(std::string const &filename) const;
+
+        void load_model(std::string const &filename);
 
     private:
         // Neural Network architecture
@@ -81,13 +94,7 @@ class Net_t {
         //  a: vector of results of activation functions from previous layer [(X_i)^(l-1))
         //  delta: vector of deltas corresponding to each signal Sj of the given layer
         //  learning_rate: learning rate used for training
-        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate);    
-
-        // Generates a random number between [min, max]
-        double randDouble(double min, double max);
-
-        // Fills the vector vec with random numbers between [min, max]
-        void fillVectorRandom(VecDouble_t &vec, double min, double max);
+        void update_weights(MatDouble_t &layer, VecDouble_t const &a, VecDouble_t const &delta, double const &learning_rate, double const &lambda);            
 
         // Returns true if (a == b), throws Exception otherwise.
         bool checksize(int a, int b);

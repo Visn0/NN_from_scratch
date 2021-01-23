@@ -47,7 +47,6 @@ static void myshuffle(auto& collection)
     std::shuffle ( collection.begin(), collection.end(), rng);    
 }
 
-
 template <class T>
 static void print(T const &t)
 {   
@@ -159,10 +158,10 @@ static void vecInt_to_txt(const std::string &filename, const VecInt_t& vec)
 
 static void copySize(std::vector<MatDouble_t> &dest, std::vector<MatDouble_t> const &src)
 {
-    for (auto i = 0; i < src.size(); ++i)
+    for (std::size_t i = 0; i < src.size(); ++i)
     {
         MatDouble_t mat(src[i].size());
-        for (auto j = 0; j < src[i].size(); ++j)
+        for (std::size_t j = 0; j < src[i].size(); ++j)
         {
             mat[j].resize(src[i][j].size());
         }

@@ -48,7 +48,6 @@ VecPair_t Net_t::fit(
 {
     // history[epoch] = pair(train_error, test_error)
     VecPair_t history(epochs);
-    const int L = m_layers.size() - 1;
     const std::size_t maxBatches = X_train.size() % batch_size == 0 ? (X_train.size()/batch_size) : (X_train.size()/batch_size)+1;
     print(maxBatches);
 
@@ -202,7 +201,7 @@ void Net_t::load_model(std::string const &filename) {
         getline(sline, value, ',');
 
         VecDouble_t signal_j( std::stoi(value) );            
-        for(int i = 0; i < signal_j.size(); ++i)
+        for(std::size_t i = 0; i < signal_j.size(); ++i)
         {            
             getline(sline, value, ',') ;
             signal_j[i] = std::stod(value);                     

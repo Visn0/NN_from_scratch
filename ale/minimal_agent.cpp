@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 // Global vars
-const double BOT_THRESHOLD = 0.5;
-const bool USE_BOT = false;
+const double BOT_THRESHOLD = 0.3;
+const bool USE_BOT = !false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;

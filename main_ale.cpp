@@ -145,7 +145,7 @@ void run(int argc, char* argv[])
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
-    Net_t net{ INPUT_SIZE, 64, 32, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 128, 64, 32, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 

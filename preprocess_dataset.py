@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 # print(df.describe(include='all').T)
 
 # RAM min percentage of variation (not included)
-MIN_PERCENTAGE = 0.0
+MIN_PERCENTAGE = -10.0
 
 def printArrayAsTable(rows, cols, array):
     index = 0

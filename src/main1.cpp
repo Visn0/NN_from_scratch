@@ -19,9 +19,6 @@ void run()
     
     std::cout << std::endl << net << std::endl;
     std::cout << "Evaluate error: " << net.evaluate(X, y) << std::endl;
-
-    net.save_model("SAVEDMODEL.csv");
-    net.load_model("SAVEDMODEL.csv");
 }
 
 int main()

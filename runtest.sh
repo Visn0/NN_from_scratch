@@ -12,7 +12,6 @@ for FILE in $(ls *.cpp) ; do
 	else
 		echo "ERROR"
 	fi
-	return
 done
 cd ..
 make clean

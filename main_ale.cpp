@@ -140,8 +140,8 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 
 void run(int argc, char* argv[]) 
 {   
-    auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
-    auto [X_test, y_test] = readDataset("x_test.csv", "y_test.csv");    
+    auto [X_train, y_train] = readDataset("X_train.csv", "y_train.csv");
+    auto [X_test, y_test] = readDataset("X_test.csv", "y_test.csv");    
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     {
         if (argc > 2 && strcmp(argv[1], "-heat") == 0)
         {
-            auto [X_train, y_train] = readDataset("x_train.csv", "y_train.csv");
+            auto [X_train, y_train] = readDataset("X_train.csv", "y_train.csv");
             heatMap(X_train, atof(argv[2]));                
         } 
         else

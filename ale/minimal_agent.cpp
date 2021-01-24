@@ -8,7 +8,7 @@
 
 // Global vars
 const double BOT_THRESHOLD = 0.3;
-const bool USE_BOT = false;
+const bool USE_BOT = !false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -122,11 +122,7 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    // [3] = LEFT
    // [4] = RIGHT
    //
-   if (prediction[0] > BOT_THRESHOLD) // UP
-   {
-      teclas[0] = 1;
-      reward += alei.act(PLAYER_A_UP);
-   }          
+           
 
    // coger el mayor !=  up
    // if mayor > threshold then seguimos
@@ -143,7 +139,7 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    }
 
    print(prediction);
-   sleep(1);
+   // sleep(1);
 
    if (prediction[maxIndex] > BOT_THRESHOLD)
    {
@@ -192,6 +188,11 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
       }
    }
 
+   // if (prediction[0] > BOT_THRESHOLD) // UP
+   // {
+   //    teclas[0] = 1;
+   //    reward += alei.act(PLAYER_A_UP);
+   // }  
    // if (prediction[1] > BOT_THRESHOLD) // SPACE
    // {
    //    teclas[1] = 1;
@@ -339,7 +340,7 @@ int main(int argc, char **argv) {
    int step;
    cls();
    
-   Net_t bot("../ale_bot.csv");
+   Net_t bot("../ale_bot.csv");   
    VecInt_t indexes;
    readRamIndexes("../ramindexes.txt", indexes);   
 

@@ -2,16 +2,46 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-df = pd.read_csv('y.csv', sep=',', decimal='.')
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
-pd.set_option('display.width', 2000)
-pd.set_option('display.float_format', '{:20,.2f}'.format)
-pd.set_option('display.max_colwidth', None)
-print(df.describe(include='all').T)
+# df = pd.read_csv('y.csv', sep=',', decimal='.')
+# pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_columns', None)
+# pd.set_option('display.width', 2000)
+# pd.set_option('display.float_format', '{:20,.2f}'.format)
+# pd.set_option('display.max_colwidth', None)
+# print(df.describe(include='all').T)
 
 # RAM min percentage of variation (not included)
 MIN_PERCENTAGE = -10.0
+
+def balance_dataset(X, y):    
+    x_df = pd.DataFrame(data=X)
+    y_df = pd.DataFrame(data=y, columns=list('abcde'))
+
+    result = pd.concat([x_df, y_df], axis=1)
+
+    nomove  = result[(result.a == 0) & (result.b == 0) & (result.c == 0) & (result.d == 0) & (result.e == 0)].copy()
+    move    = result[(result.a == 1) | (result.b == 1) | (result.c == 1) | (result.d == 1) | (result.e == 1)].copy()
+
+    nomove = nomove[:int(nomove.shape[0]/4)].copy()
+
+    result = pd.concat([nomove, move])
+
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 2000)
+    pd.set_option('display.float_format', '{:20,.2f}'.format)
+    pd.set_option('display.max_colwidth', None)
+    # print(result.describe(include='all').T)
+    
+    countClicksPd(result)    
+
+    print(result)
+    X_res = result.iloc[:, :-5]    
+    y_res = result.iloc[:, -5:]
+
+    return X_res, y_res
+
+
 
 def printArrayAsTable(rows, cols, array):
     index = 0
@@ -67,7 +97,17 @@ def parseOutputTo1KeyAction(y):
 
     return np.asarray(y_res)
 
-def countClicks(y):
+def countClicksPd(y):
+    up          = y[(y.a == 1)].shape[0]
+    spaceLeft   = y[(y.b == 1)].shape[0]
+    spaceRight  = y[(y.c == 1)].shape[0]
+    left        = y[(y.d == 1)].shape[0]
+    right       = y[(y.e == 1)].shape[0]
+
+    print('(UP, SPACE+LEFT, SPACE+RIGHT, LEFT, RIGHT)') 
+    print(f'({up}, {spaceLeft}, {spaceRight}, {left}, {right})') 
+
+def countClicksNp(y):
     up          = 0
     spaceLeft   = 0
     spaceRight  = 0
@@ -98,8 +138,10 @@ def removeUnusedIndexes(X, indexes):
     return X_res
 
 def save_dataset(X, y, label):
-    np.savetxt(f"X_{label}.csv", X, delimiter=",", fmt='%i')
-    np.savetxt(f"y_{label}.csv", y, delimiter=",", fmt='%i')
+    # np.savetxt(f"X_{label}.csv", X, delimiter=",", fmt='%i')
+    # np.savetxt(f"y_{label}.csv", y, delimiter=",", fmt='%i')
+    X.to_csv(f'X_{label}.csv', index=False, header=False)
+    y.to_csv(f'y_{label}.csv', index=False, header=False)
 
 def main():        
     # Load the whole dataset X, y
@@ -118,7 +160,7 @@ def main():
     y = parseOutputTo1KeyAction(y)
     print(f'Y processed shape: {y.shape}')
 
-    countClicks(y)
+    X, y = balance_dataset(X, y)
 
     # split dataset into train and test subsets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=517)

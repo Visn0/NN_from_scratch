@@ -4,8 +4,8 @@
 
 const double REGULARIZATION_LAMBDA  = 0.0001;
 const uint32_t BATCH_SIZE           = 32;
-const int EPOCHS                    = 300;
-const double LEARNING_RATE          = 0.01;
+const int EPOCHS                    = 200;
+const double LEARNING_RATE          = 0.1;
 const int OUTPUT_SIZE               = 5;
 uint16_t INPUT_SIZE                 = 0;
 
@@ -145,7 +145,7 @@ void run(int argc, char* argv[])
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
-    Net_t net{ INPUT_SIZE, 128, 64, 32, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 64, 32, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_test, y_test);
 

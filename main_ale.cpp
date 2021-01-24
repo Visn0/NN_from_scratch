@@ -6,7 +6,7 @@ const double REGULARIZATION_LAMBDA  = 0.0001;
 const uint32_t BATCH_SIZE           = 32;
 const int EPOCHS                    = 100;
 const double LEARNING_RATE          = 0.01;
-const int OUTPUT_SIZE               = 4;
+const int OUTPUT_SIZE               = 5;
 uint16_t INPUT_SIZE                 = 0;
 
 void heatMap(const MatDouble_t& data, const double& percentage) 

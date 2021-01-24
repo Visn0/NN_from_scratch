@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-# df = pd.read_csv('x_train.csv', sep=',', decimal='.')
-# pd.set_option('display.max_rows', None)
-# pd.set_option('display.max_columns', None)
-# pd.set_option('display.width', 2000)
-# pd.set_option('display.float_format', '{:20,.2f}'.format)
-# pd.set_option('display.max_colwidth', None)
-# print(df.describe(include='all').T)
+df = pd.read_csv('y.csv', sep=',', decimal='.')
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 2000)
+pd.set_option('display.float_format', '{:20,.2f}'.format)
+pd.set_option('display.max_colwidth', None)
+print(df.describe(include='all').T)
 
 # RAM min percentage of variation (not included)
 MIN_PERCENTAGE = -10.0
@@ -40,7 +40,48 @@ def generateRamIndexes(X, minPercentage):
     print(f'\nChanging indexes: {indexes}')
 
     return indexes
-    
+
+def parseOutputTo1KeyAction(y):
+    y_res = list()
+
+    #
+    # 0 - UP
+    # 1 - SPACE
+    # 2 - LEFT
+    # 3 - RIGHT
+    #
+    for i in range(y.shape[0]):
+        up          = y[i, 0]
+
+        # SPACE and LEFT
+        spaceLeft   = 1 if (y[i, 1] == 1 and y[i, 2] == 1) else 0
+        # SPACE and RIGHT
+        spaceRight  = 1 if (y[i, 1] == 1 and y[i, 3] == 1) else 0
+
+        # not SPACE and LEFT
+        left        = 1 if (y[i, 1] == 0 and y[i, 2] == 1) else 0
+        # not SPACE and RIGHT
+        right       = 1 if (y[i, 1] == 0 and y[i, 3] == 1) else 0
+        
+        y_res.append( np.array([up, spaceLeft, spaceRight, left, right]) )
+
+    return np.asarray(y_res)
+
+def countClicks(y):
+    up          = 0
+    spaceLeft   = 0
+    spaceRight  = 0
+    left        = 0
+    right       = 0
+    for i in range(y.shape[0]):
+        up          += (1 if y[i, 0] == 1 else 0)
+        spaceLeft   += (1 if y[i, 1] == 1 else 0)
+        spaceRight  += (1 if y[i, 2] == 1 else 0)
+        left        += (1 if y[i, 3] == 1 else 0)
+        right       += (1 if y[i, 4] == 1 else 0)
+
+    print('(UP, SPACE+LEFT, SPACE+RIGHT, LEFT, RIGHT)') 
+    print(f'({up}, {spaceLeft}, {spaceRight}, {left}, {right})') 
 
 def removeUnusedIndexes(X, indexes):
     if indexes.shape[0] == 0:
@@ -74,6 +115,10 @@ def main():
 
     # Remove unused indexes from dataset (doesn't modify the original files)
     X = removeUnusedIndexes(X, indexes)
+    y = parseOutputTo1KeyAction(y)
+    print(f'Y processed shape: {y.shape}')
+
+    countClicks(y)
 
     # split dataset into train and test subsets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=517)

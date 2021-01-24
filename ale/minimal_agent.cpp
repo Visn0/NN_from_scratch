@@ -8,7 +8,7 @@
 
 // Global vars
 const double BOT_THRESHOLD = 0.3;
-const bool USE_BOT = !false;
+const bool USE_BOT = false;
 const int maxSteps = 10000;
 int lastLives;
 float totalReward;
@@ -86,7 +86,7 @@ void writeRAM(int teclas[])
       user_input_file << std::to_string(teclas[i]) << ",";
       // std::cout << "TECLA: " << std::to_string(teclas[i]) << std::endl;
    }   
-   user_input_file << std::to_string(teclas[4]);
+   user_input_file << std::to_string(teclas[3]);
    user_input_file << std::endl;
    user_input_file.close();
 }
@@ -113,58 +113,124 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    VecDouble_t RAM = ram_to_VecDouble(indexes);
    VecDouble_t prediction = bot.predict(RAM);
 
-   // print("\n");
-   // print(prediction);
-   // print("\n");
-
-   // sleep(1);
-
-   // bot
+   //
+   // PREDICTION
+   // ----------
+   // [0] = UP
+   // [1] = SPACE+LEFT
+   // [2] = SPACE+RIGHT
+   // [3] = LEFT
+   // [4] = RIGHT
+   //
    if (prediction[0] > BOT_THRESHOLD) // UP
    {
       teclas[0] = 1;
       reward += alei.act(PLAYER_A_UP);
    }          
 
-   if (prediction[1] > BOT_THRESHOLD) // SPACE
+   // coger el mayor !=  up
+   // if mayor > threshold then seguimos
+   // if mayor == up then execute up and check left || right
+   // if mayor == spaceLeft || spaceRigh then run it
+
+   std::size_t maxIndex = 0;
+   for(std::size_t i = 1; i < prediction.size(); ++i)
    {
-      teclas[1] = 1;
-      if (prediction[2] > prediction[3]) // LEFT > RIGHT
+      if (prediction[maxIndex] < prediction[i])
       {
-         if (prediction[2] > BOT_THRESHOLD)
-         {
-            reward += alei.act(PLAYER_A_LEFTFIRE);
-            teclas[2] = 1;
-         }
+         maxIndex = i;
       }
-      else
-      {
-         if (prediction[3] > BOT_THRESHOLD)
-         {
-            reward += alei.act(PLAYER_A_RIGHTFIRE);
-            teclas[3] = 1;
-         }
-      }  
    }
-   else
+
+   print(prediction);
+   sleep(1);
+
+   if (prediction[maxIndex] > BOT_THRESHOLD)
    {
-      if (prediction[2] > prediction[3]) // LEFT > RIGHT
+      switch (maxIndex)
       {
-         if (prediction[2] > BOT_THRESHOLD)
-         {
+         case 0:
+            teclas[0] = 1;
+            reward += alei.act(PLAYER_A_UP);
+
+            if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD*0.8)
+            {
+               reward += alei.act(PLAYER_A_LEFT);
+               teclas[2] = 1;
+            }
+            else if (prediction[4] > BOT_THRESHOLD*0.8)
+            {
+               reward += alei.act(PLAYER_A_RIGHT);
+               teclas[3] = 1;
+            }
+
+            break;
+
+         case 1:
+            teclas[1] = 1;
+            teclas[2] = 1;
+            reward += alei.act(PLAYER_A_LEFTFIRE);            
+            break;
+         
+         case 2:
+            teclas[1] = 1;
+            teclas[3] = 1;
+            reward += alei.act(PLAYER_A_RIGHTFIRE);            
+            break;
+
+         case 3:
             reward += alei.act(PLAYER_A_LEFT);
             teclas[2] = 1;
-         }
-      }
-      else
-      {
-         if (prediction[3] > BOT_THRESHOLD)
-         {
+            break;
+
+         case 4:
             reward += alei.act(PLAYER_A_RIGHT);
             teclas[3] = 1;
-         }
-      } 
+         
+         default:
+            break;
+      }
    }
+
+   // if (prediction[1] > BOT_THRESHOLD) // SPACE
+   // {
+   //    teclas[1] = 1;
+   //    if (prediction[2] > prediction[3]) // LEFT > RIGHT
+   //    {
+   //       if (prediction[2] > BOT_THRESHOLD)
+   //       {
+   //          reward += alei.act(PLAYER_A_LEFTFIRE);
+   //          teclas[2] = 1;
+   //       }
+   //    }
+   //    else
+   //    {
+   //       if (prediction[3] > BOT_THRESHOLD)
+   //       {
+   //          reward += alei.act(PLAYER_A_RIGHTFIRE);
+   //          teclas[3] = 1;
+   //       }
+   //    }  
+   // }
+   // else
+   // {
+   //    if (prediction[2] > prediction[3]) // LEFT > RIGHT
+   //    {
+   //       if (prediction[2] > BOT_THRESHOLD)
+   //       {
+   //          reward += alei.act(PLAYER_A_LEFT);
+   //          teclas[2] = 1;
+   //       }
+   //    }
+   //    else
+   //    {
+   //       if (prediction[3] > BOT_THRESHOLD)
+   //       {
+   //          reward += alei.act(PLAYER_A_RIGHT);
+   //          teclas[3] = 1;
+   //       }
+   //    } 
+   // }
 
    return reward;
 }

@@ -56,6 +56,8 @@ class Net_t {
 
         void load_model(std::string const &filename);
 
+        void printArchitecture() const;
+
     private:
         // Neural Network architecture
         std::vector<MatDouble_t> m_layers;

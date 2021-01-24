@@ -216,6 +216,18 @@ void Net_t::load_model(std::string const &filename) {
     // std::cout << *this << std::endl;
 }
 
+void Net_t::printArchitecture() const
+{
+    
+    std::cout << "Architecture: { ";
+    
+    for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {
+        std::cout << m_layers[layer].size() << " ";
+    }
+
+    std::cout << "}" << std::endl;
+}
+
 std::ostream & operator<<(std::ostream &os, const Net_t &net) {    
     for(std::size_t layer = 0; layer < net.m_layers.size(); ++layer) {
         os << "### begin Layer traspose " << std::to_string(layer) << " ###" << std::endl;

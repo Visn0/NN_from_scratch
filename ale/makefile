@@ -12,4 +12,4 @@ $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm ale
+	rm ale ../lib/*.o

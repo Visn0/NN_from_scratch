@@ -1,9 +1,9 @@
 
-IF(NOT EXISTS "/home/carismendi/Documents/ra_nn/ale/build/install_manifest.txt")
-  MESSAGE(FATAL_ERROR "Cannot find install manifest: /home/carismendi/Documents/ra_nn/ale/build/install_manifest.txt")
-ENDIF(NOT EXISTS "/home/carismendi/Documents/ra_nn/ale/build/install_manifest.txt")
+IF(NOT EXISTS "/home/ac/Desktop/Universidad_2021/RA/NN_from_scratch/ale/build/install_manifest.txt")
+  MESSAGE(FATAL_ERROR "Cannot find install manifest: /home/ac/Desktop/Universidad_2021/RA/NN_from_scratch/ale/build/install_manifest.txt")
+ENDIF(NOT EXISTS "/home/ac/Desktop/Universidad_2021/RA/NN_from_scratch/ale/build/install_manifest.txt")
 
-FILE(READ "/home/carismendi/Documents/ra_nn/ale/build/install_manifest.txt" files)
+FILE(READ "/home/ac/Desktop/Universidad_2021/RA/NN_from_scratch/ale/build/install_manifest.txt" files)
 STRING(REGEX REPLACE "\n" ";" files "${files}")
 FOREACH(file ${files})
   MESSAGE(STATUS "Uninstalling "$ENV{DESTDIR}${file}"")

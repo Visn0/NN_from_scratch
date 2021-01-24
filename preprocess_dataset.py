@@ -56,9 +56,7 @@ def generateRamIndexes(X, minPercentage):
     for i in range(X.shape[0]):
         for j in range(heatMap.shape[0]):
             if X[i, j] != X[0][j]:
-                heatMap[j] += (100.0 / float(X.shape[0]))
-
-    # printArrayAsTable(8, 16, heatMap)
+                heatMap[j] += (100.0 / float(X.shape[0]))    
 
     indexes = list()
     for i in range(0, heatMap.shape[0], 1):
@@ -67,7 +65,6 @@ def generateRamIndexes(X, minPercentage):
 
     indexes = np.asarray(indexes)
     np.savetxt(f"ramindexes.txt", indexes, fmt='%i')
-    print(f'\nChanging indexes: {indexes}')
 
     return indexes
 
@@ -95,7 +92,8 @@ def parseOutputTo1KeyAction(y):
         
         y_res.append( np.array([up, spaceLeft, spaceRight, left, right]) )
 
-    return np.asarray(y_res)
+    y_df = pd.DataFrame(data=y_res)
+    return y_df
 
 def countClicksPd(y):
     up          = y[(y.a == 1)].shape[0]
@@ -107,7 +105,7 @@ def countClicksPd(y):
     print('(UP, SPACE+LEFT, SPACE+RIGHT, LEFT, RIGHT)') 
     print(f'({up}, {spaceLeft}, {spaceRight}, {left}, {right})') 
 
-def countClicksNp(y):
+
     up          = 0
     spaceLeft   = 0
     spaceRight  = 0
@@ -145,20 +143,16 @@ def save_dataset(X, y, label):
 
 def main():        
     # Load the whole dataset X, y
-    X = np.genfromtxt('x.csv', delimiter=',', dtype=int)
-    print(f'X shape: {X.shape}')
+    X = pd.read_csv('x.csv', sep=',', dtype=int)
 
-    y = np.genfromtxt('y.csv', delimiter=',', dtype=int)
-    print(f'y shape: {y.shape}')
+    y = np.read_csv('y.csv', sep=',', dtype=int)
     
     # Generate the indexes that must be taken into account when training the Net
     indexes = generateRamIndexes(X, MIN_PERCENTAGE)
-    print(f'Indexes shape: {indexes.shape}')
 
     # Remove unused indexes from dataset (doesn't modify the original files)
-    X = removeUnusedIndexes(X, indexes)
+    # X = removeUnusedIndexes(X, indexes)
     y = parseOutputTo1KeyAction(y)
-    print(f'Y processed shape: {y.shape}')
 
     X, y = balance_dataset(X, y)
 

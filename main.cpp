@@ -20,6 +20,8 @@ void run()
     
     std::cout << std::endl << net << std::endl;
     std::cout << "Evaluate error: " << net.evaluate(X, y) << std::endl;
+    net.save_model("pruebasave.csv");
+    net.printArchitecture();
 }
 
 int main()
@@ -27,6 +29,9 @@ int main()
     try
     {
         run();
+        Net_t red("pruebasave.csv");
+        std::cout << red << std::endl;
+        red.printArchitecture();
     }
     catch (std::exception &e)
     {

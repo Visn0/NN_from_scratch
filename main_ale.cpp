@@ -4,7 +4,7 @@
 
 const double REGULARIZATION_LAMBDA  = 0.0001;
 const uint32_t BATCH_SIZE           = 32;
-const int EPOCHS                    = 100;
+const int EPOCHS                    = 300;
 const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 5;
 uint16_t INPUT_SIZE                 = 0;

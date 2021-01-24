@@ -61,6 +61,8 @@ class Net_t {
     private:
         // Neural Network architecture
         std::vector<MatDouble_t> m_layers;
+
+        std::uint16_t input_size;
         
         // ######################## BEGIN AUXILIAR METHODS ########################
         // Multiply Xi*Wij and add them to obtain the signal Sj that enters a neuron

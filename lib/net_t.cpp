@@ -16,17 +16,19 @@ Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
     if (layers.size() < 2)
         throw std::out_of_range("Net_t");
 
-    auto input_size = *layers.begin();
+    this->input_size = *layers.begin();
+
+    auto inp_size = *layers.begin();
     for (auto it = layers.begin() + 1; it != layers.end(); ++it)
     {
         MatDouble_t layer_w(*it);
         for (auto &v : layer_w)
         {
-            v.resize(input_size + 1); // +threshold
+            v.resize(inp_size + 1); // +threshold
             fillVectorRandom(v, -10.0, 10.0);
         }
         m_layers.push_back(layer_w);
-        input_size = *it;
+        inp_size = *it;
     }
 }
 
@@ -140,13 +142,21 @@ void Net_t::save_model(std::string const &filename) const{
     std::ofstream file;
     file.open(filename, std::ios::out);
 
+    // First line is net architecture
+    file << this->input_size;
+    for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {
+        file << "," << m_layers[layer].size();
+    }
+    file << std::endl;
+
+    // Weights of the network ordered by layers orderes by signals
     for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {        
         for(std::size_t signal_j = 0; signal_j < m_layers[layer].size(); ++signal_j) {
             std::string signal_str{ std::to_string(signal_j) };            
 
             auto* signal_ref = &m_layers[layer][signal_j];
 
-            file << layer; // layer numbner
+            file << layer; // layer number
             file << "," <<  signal_ref->size(); // Number of parameters in the signal Sj
             
             for(std::size_t weight = 0; weight < signal_ref->size(); ++weight) {                                                
@@ -158,9 +168,6 @@ void Net_t::save_model(std::string const &filename) const{
     }
 
     file.close();
-    std::cout << "Model saved correctly: " << filename << std::endl;
-    // std::cout << "---------SAVE MODEL" << std::endl;
-    // std::cout << *this << std::endl << std::endl;
 }
 
 void Net_t::load_model(std::string const &filename) {    
@@ -181,6 +188,16 @@ void Net_t::load_model(std::string const &filename) {
     std::string value;
 
     MatDouble_t layer;
+    
+    // Line with architecture
+    getline(file, line);
+    sline.clear();
+    sline.str(line);
+    getline(sline, value, ',');
+
+    this->input_size = std::stod(value);
+
+    // Layers, signals and weights
     while(getline(file, line))
     {                            
         sline.clear();
@@ -212,20 +229,18 @@ void Net_t::load_model(std::string const &filename) {
 
     file.close();
     m_layers.push_back(layer);    
-    // std::cout << "---------LOAD MODEL" << std::endl;
-    // std::cout << *this << std::endl;
 }
 
 void Net_t::printArchitecture() const
 {
     
-    std::cout << "Architecture: { ";
+    std::cout << "Architecture: { " << this->input_size;
     
     for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {
-        std::cout << m_layers[layer].size() << " ";
+        std::cout << " " << m_layers[layer].size();
     }
 
-    std::cout << "}" << std::endl;
+    std::cout << " }" << std::endl;
 }
 
 std::ostream & operator<<(std::ostream &os, const Net_t &net) {    

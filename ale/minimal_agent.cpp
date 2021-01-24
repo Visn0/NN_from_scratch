@@ -208,6 +208,7 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    // }
 
    // FIRE UP
+<<<<<<< HEAD
    if (prediction[0] > BOT_THRESHOLD) // UP
    {
       teclas[0] = 1;
@@ -241,6 +242,41 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
       reward += alei.act(PLAYER_A_RIGHT);
       teclas[3] = 1;
    }
+=======
+   // if (prediction[0] > BOT_THRESHOLD) // UP
+   // {
+   //    teclas[0] = 1;
+   //    reward += alei.act(PLAYER_A_UP);
+   // }  
+
+   // // FIRE LEFT OR RIGHT
+   // if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD)
+   // {
+   //    teclas[1] = 1;
+   //    teclas[2] = 1;
+   //    reward += alei.act(PLAYER_A_LEFTFIRE);    
+   //    return reward;   
+   // }
+   // else if (prediction[2] > BOT_THRESHOLD)
+   // {
+   //    teclas[1] = 1;
+   //    teclas[3] = 1;
+   //    reward += alei.act(PLAYER_A_RIGHTFIRE);       
+   //    return reward;    
+   // } 
+
+   // // MOVEMENT LEFT OR RIGHT
+   // if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD)
+   // {
+   //    reward += alei.act(PLAYER_A_LEFT);
+   //    teclas[2] = 1;
+   // }
+   // else if (prediction[4] > BOT_THRESHOLD)
+   // {
+   //    reward += alei.act(PLAYER_A_RIGHT);
+   //    teclas[3] = 1;
+   // }
+>>>>>>> 2d56884bc8513ba96e7cca83fbc73ad435eb0ac6
 
    return reward;
 }

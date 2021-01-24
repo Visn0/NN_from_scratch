@@ -1,5 +1,5 @@
 CC=g++
-OPTIONS= -g -std=c++2a -lale -L. -Wl,-rpath=. -lSDL
+OPTIONS= -g -O3 -std=c++2a -lale -L. -Wl,-rpath=. -lSDL
 LIBDIR=../lib
 INCLUDEDIR=../include
 _OBJ= net_t.o
@@ -12,4 +12,4 @@ $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm ale
+	rm ale $(OBJ)

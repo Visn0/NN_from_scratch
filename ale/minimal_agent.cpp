@@ -155,10 +155,7 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    //    {
    //       maxIndex = i;
    //    }
-   // }
-
-   // print(prediction);
-   // sleep(1);
+   // }    
 
    // if (prediction[maxIndex] > BOT_THRESHOLD)
    // {
@@ -208,76 +205,37 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
    // }
 
    // FIRE UP
-<<<<<<< HEAD
-   if (prediction[0] > BOT_THRESHOLD) // UP
+   if (prediction[0] > BOT_THRESHOLD)
    {
       teclas[0] = 1;
       reward += alei.act(PLAYER_A_UP);
    }  
 
-   // FIRE LEFT OR RIGHT
+   // FIRE LEFT
    if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD)
    {
       teclas[1] = 1;
       teclas[2] = 1;
-      reward += alei.act(PLAYER_A_LEFTFIRE);    
-      return reward;   
+      reward += alei.act(PLAYER_A_LEFTFIRE);      
    }
-   else if (prediction[2] > BOT_THRESHOLD)
+   else if (prediction[2] > BOT_THRESHOLD) // FIRE RIGHT
    {
       teclas[1] = 1;
       teclas[3] = 1;
-      reward += alei.act(PLAYER_A_RIGHTFIRE);       
-      return reward;    
-   } 
-
-   // MOVEMENT LEFT OR RIGHT
-   if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD)
+      reward += alei.act(PLAYER_A_RIGHTFIRE);           
+   } else if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD) // MOVEMENT LEFT
    {
       reward += alei.act(PLAYER_A_LEFT);
       teclas[2] = 1;
    }
-   else if (prediction[4] > BOT_THRESHOLD)
+   else if (prediction[4] > BOT_THRESHOLD) // MOVEMENT RIGHT
    {
       reward += alei.act(PLAYER_A_RIGHT);
       teclas[3] = 1;
    }
-=======
-   // if (prediction[0] > BOT_THRESHOLD) // UP
-   // {
-   //    teclas[0] = 1;
-   //    reward += alei.act(PLAYER_A_UP);
-   // }  
 
-   // // FIRE LEFT OR RIGHT
-   // if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD)
-   // {
-   //    teclas[1] = 1;
-   //    teclas[2] = 1;
-   //    reward += alei.act(PLAYER_A_LEFTFIRE);    
-   //    return reward;   
-   // }
-   // else if (prediction[2] > BOT_THRESHOLD)
-   // {
-   //    teclas[1] = 1;
-   //    teclas[3] = 1;
-   //    reward += alei.act(PLAYER_A_RIGHTFIRE);       
-   //    return reward;    
-   // } 
-
-   // // MOVEMENT LEFT OR RIGHT
-   // if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD)
-   // {
-   //    reward += alei.act(PLAYER_A_LEFT);
-   //    teclas[2] = 1;
-   // }
-   // else if (prediction[4] > BOT_THRESHOLD)
-   // {
-   //    reward += alei.act(PLAYER_A_RIGHT);
-   //    teclas[3] = 1;
-   // }
->>>>>>> 2d56884bc8513ba96e7cca83fbc73ad435eb0ac6
-
+   // print(prediction);  
+   // sleep(1);
    return reward;
 }
 

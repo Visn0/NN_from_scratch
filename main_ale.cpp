@@ -2,8 +2,8 @@
 #include "net_t.h"
 #include <string.h>
 
-const double REGULARIZATION_LAMBDA  = 0.001;
-const uint32_t BATCH_SIZE           = 16;
+const double REGULARIZATION_LAMBDA  = 0.0001;
+const uint32_t BATCH_SIZE           = 64;
 const int EPOCHS                    = 100;
 const double LEARNING_RATE          = 0.1;
 const int OUTPUT_SIZE               = 5;
@@ -146,7 +146,7 @@ void run(int argc, char* argv[])
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
-    Net_t net{ INPUT_SIZE, 32, 16, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 48, 24, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_valid, y_valid);
 

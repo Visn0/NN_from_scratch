@@ -14,13 +14,16 @@
 Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
 {
     if (layers.size() < 2)
-        throw std::out_of_range("Net_t");
+        throw std::out_of_range("[EXCEPTION]: The number of layers must be at least 2.");
 
     this->input_size = *layers.begin();
 
     auto inp_size = *layers.begin();
     for (auto it = layers.begin() + 1; it != layers.end(); ++it)
     {
+        if (inp_size == 0)
+            throw std::out_of_range("[EXCEPTION]: The number neurons per layers must be > 0.");
+
         MatDouble_t layer_w(*it);
         for (auto &v : layer_w)
         {

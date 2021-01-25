@@ -5,7 +5,7 @@
 const double REGULARIZATION_LAMBDA  = 0.0001;
 const uint32_t BATCH_SIZE           = 32;
 const int EPOCHS                    = 200;
-const double LEARNING_RATE          = 0.1;
+const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 5;
 uint16_t INPUT_SIZE                 = 0;
 
@@ -141,13 +141,14 @@ double evaluate_time(auto& net, const MatDouble_t& X, const MatDouble_t& y)
 void run(int argc, char* argv[]) 
 {   
     auto [X_train, y_train] = readDataset("X_train.csv", "y_train.csv");
+    auto [X_valid, y_valid] = readDataset("X_valid.csv", "y_valid.csv"); 
     auto [X_test, y_test] = readDataset("X_test.csv", "y_test.csv");    
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
-    Net_t net{ INPUT_SIZE, 64, 32, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 32, 16, OUTPUT_SIZE };
     
-    const double fit = fit_time(net, X_train, y_train, X_test, y_test);
+    const double fit = fit_time(net, X_train, y_train, X_valid, y_valid);
 
     const double evaluate = evaluate_time(net, X_test, y_test);
 

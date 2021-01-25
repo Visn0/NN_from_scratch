@@ -97,7 +97,7 @@ VecPair_t Net_t::fit(
             case 1:
                 std::cout << "Epoch " << std::to_string(epoch);
                 std::cout << ": train_error=" << std::to_string(train_error);
-                std::cout << "\ttest_error=" << std::to_string(test_error);
+                std::cout << "\tval_error=" << std::to_string(test_error);
                 std::cout << std::endl;
                 break;
             

@@ -65,14 +65,27 @@ void showRAM()
    std::printf("\n====================================================\n");
 }
 
-void writeRAM(int teclas[])
+void writeTeclas(const int teclas[])
+{
+   if (USE_BOT) return;
+
+   std::ofstream user_input_file;
+   user_input_file.open("y.csv", std::ios::app);      
+   for (std::size_t i = 0; i < 3; i++)
+   {      
+      user_input_file << std::to_string(teclas[i]) << ",";
+   }   
+   user_input_file << std::to_string(teclas[3]);
+   user_input_file << std::endl;
+   user_input_file.close();
+}
+
+void writeRAM(const ALERAM RAM)
 {
    if (USE_BOT) return;
 
    std::ofstream ram_file;
-
    ram_file.open("x.csv", std::ios::app);
-   const auto& RAM = alei.getRAM();
    for(std::size_t i = 0; i < 127; ++i)
    {
       ram_file << std::to_string(RAM.get(i)) << ",";
@@ -80,17 +93,6 @@ void writeRAM(int teclas[])
    ram_file << std::to_string(RAM.get(127));
    ram_file << std::endl;
    ram_file.close();
-
-   std::ofstream user_input_file;
-   user_input_file.open("y.csv", std::ios::app);      
-   for (std::size_t i = 0; i < 3; i++)
-   {      
-      user_input_file << std::to_string(teclas[i]) << ",";
-      // std::cout << "TECLA: " << std::to_string(teclas[i]) << std::endl;
-   }   
-   user_input_file << std::to_string(teclas[3]);
-   user_input_file << std::endl;
-   user_input_file.close();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,7 +127,7 @@ void saveBotPrediction(const VecDouble_t &prediction)
    file.close();
 }
 
-float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
+float playBot(const Net_t& bot, int teclas[], VecInt_t const &indexes) {
    float reward = 0.0;
 
    VecDouble_t RAM = ram_to_VecDouble(indexes);
@@ -234,7 +236,7 @@ float playBot(Net_t& bot, int teclas[], VecInt_t const &indexes) {
       teclas[3] = 1;
    }
 
-   // print(prediction);  
+   // print(prediction, reward);  
    // sleep(1);
    return reward;
 }
@@ -297,13 +299,15 @@ float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    {
       teclas[i] = 0;
    }
+   const ALERAM RAM = alei.getRAM();
+   writeRAM(RAM);
 
    if(useBot)
       reward += playBot(bot, teclas, indexes);
    else
       reward += playManual(teclas);
    
-   writeRAM(teclas);
+   writeTeclas(teclas);
 
    return (reward + alei.act(PLAYER_A_NOOP));
 }

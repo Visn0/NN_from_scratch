@@ -24,17 +24,20 @@ def balance_dataset(X, y):
 
     nomove  = result[(result.a == 0) & (result.b == 0) & (result.c == 0) & (result.d == 0) & (result.e == 0)].copy()
     move    = result[(result.a == 1) | (result.b == 1) | (result.c == 1) | (result.d == 1) | (result.e == 1)].copy()
+    move    = move[((move.index % 2 == 0) | (move.index % 3 == 0)) | (move.a == 1)| (move.b == 1)| (move.c == 1)]
 
-    nomove = nomove[:int(nomove.shape[0]/4)].copy()
+    nomove = nomove[nomove.index % 2 == 0].copy()
+    nomove.reset_index(drop=True, inplace=True)
+    nomove = nomove[nomove.index % 2 == 0].copy()
     result = pd.concat([nomove, move])    
     
     countClicks(result)    
-    heatmap = result.corr(method ='pearson') 
-    heatmap.style.background_gradient(cmap='Blues')
-    sns.heatmap(heatmap, cmap='Blues',
-            xticklabels=heatmap.columns.values,
-            yticklabels=heatmap.columns.values)
-    plt.show()
+    # heatmap = result.corr(method ='pearson') 
+    # heatmap.style.background_gradient(cmap='Blues')
+    # sns.heatmap(heatmap, cmap='Blues',
+    #         xticklabels=heatmap.columns.values,
+    #         yticklabels=heatmap.columns.values)
+    # plt.show()
 
     X_res = result.iloc[:, :-5]    
     y_res = result.iloc[:, -5:]

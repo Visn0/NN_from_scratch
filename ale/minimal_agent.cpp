@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 // Global vars
-const double BOT_THRESHOLD = 0.1;
+const double BOT_THRESHOLD = 0.3;
 const bool USE_BOT = !false;
 const int maxSteps = 100000;
 int lastLives;
@@ -236,8 +236,8 @@ float playBot(const Net_t& bot, int teclas[], VecInt_t const &indexes) {
    //    teclas[3] = 1;
    // }
 
-   // print(prediction, reward, '\n');  
-   // sleep(1);
+   print(prediction, reward, '\n');  
+   sleep(1);
    return reward;
 }
 

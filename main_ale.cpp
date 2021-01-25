@@ -2,10 +2,10 @@
 #include "net_t.h"
 #include <string.h>
 
-const double REGULARIZATION_LAMBDA  = 0.0001;
-const uint32_t BATCH_SIZE           = 32;
-const int EPOCHS                    = 200;
-const double LEARNING_RATE          = 0.01;
+const double REGULARIZATION_LAMBDA  = 0.001;
+const uint32_t BATCH_SIZE           = 16;
+const int EPOCHS                    = 100;
+const double LEARNING_RATE          = 0.1;
 const int OUTPUT_SIZE               = 5;
 uint16_t INPUT_SIZE                 = 0;
 

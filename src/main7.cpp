@@ -28,13 +28,13 @@ void run()
         , y
     );
     
-    VecDouble_t prediction = net.predict(X[0]);
+    VecDouble_t prediction = net.predict(X[1]);
     printPred(prediction);
     net.save_model("main7_model.csv");
 
     Net_t net2("main7_model.csv");
-    VecDouble_t prediction2 = net2.predict(X[0]);
-    printPred(prediction2);
+    prediction = net2.predict(X[1]);
+    printPred(prediction);
 }
 
 int main()

@@ -8,8 +8,8 @@
 
 // Global vars
 const double BOT_THRESHOLD = 0.3;
-const bool USE_BOT = !false;
-const int maxSteps = 10000;
+const bool USE_BOT = false;
+const int maxSteps = 100000;
 int lastLives;
 float totalReward;
 ALEInterface alei;

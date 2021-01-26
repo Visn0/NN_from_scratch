@@ -27,9 +27,15 @@ class Net_t {
         explicit Net_t(std::string const &filename);
 
         // Fits the Neural Network
-        //  X: input dataset
-        //  y: input labels
+        //  X_train: input dataset for training
+        //  y_train: input labels for training
+        //  lr: learning rate for gradient descent
+        //  batch_size: how many examples of X_train takes the training at same time for feedforward and backpropagation    // 
         //  epochs: training iterations (each epoch, the whole X dataset is passed to the network)
+        //  X_validation: used to feed the net to check the error of the model evaluating data that it does not see while training at the end of each epoch.
+        //  X_validation: used to compare the outputs of X_validation and calculate the error.
+        //  verbose: indicates if the errors obtained both for training and validations datasets must be printed in the stantard output at the end of each epoch.
+        //  regularization_lambda: regularization parameter for L2 regularization.
         VecPair_t fit(
               MatDouble_t const &X_train
             , MatDouble_t const &y_train            

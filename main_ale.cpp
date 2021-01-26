@@ -59,7 +59,7 @@ void run(int argc, char* argv[])
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
     std::cout << "X_train SIZE: " << X_train.size() << std::endl;
-    Net_t net{ INPUT_SIZE, 28, 22, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 14, 7, OUTPUT_SIZE };
     
     const double fit_time = net_fit(net, X_train, y_train, X_valid, y_valid);
 

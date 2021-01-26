@@ -9,4 +9,4 @@
 (	6.72104	-3.25258	2.9629	-2.63517	)
 ### end Layer 1 ###
 
-Evaluate error: 0.619334
+Evaluate error: 1.23867

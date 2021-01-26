@@ -41,6 +41,12 @@ Net_t::Net_t(std::string const &filename) {
     load_model(filename);
 }
 
+Net_t::Net_t(std::uint16_t const &input_size, const std::vector<MatDouble_t>& weights)
+{
+    this->input_size = input_size;
+    this->m_layers = weights;
+}
+
 VecPair_t Net_t::fit(
       MatDouble_t const &X_train
     , MatDouble_t const &y_train
@@ -473,5 +479,4 @@ void Net_t::checkDatasetSize(MatDouble_t const &X, MatDouble_t const &y, std::st
         }
     }
 }
-
 // ######################## END AUXILIAR METHODS ########################

@@ -26,6 +26,8 @@ class Net_t {
 
         explicit Net_t(std::string const &filename);
 
+        explicit Net_t(std::uint16_t const &input_size, const std::vector<MatDouble_t>& weights);
+
         // Fits the Neural Network
         //  X_train: input dataset for training
         //  y_train: input labels for training
@@ -134,7 +136,7 @@ class Net_t {
         // Check that the size of each example in X corresponds to the input size of the net and the size of each example in y 
         // corresponds to the output size of the net.
         // Tag is just used for the message given by the exception.
-        void checkDatasetSize(MatDouble_t const &X, MatDouble_t const &y, std::string const &tag) const;
+        void checkDatasetSize(MatDouble_t const &X, MatDouble_t const &y, std::string const &tag) const;        
 
         // ######################## END AUXILIAR METHODS ########################        
 

@@ -13,25 +13,37 @@ pd.set_option('display.float_format', '{:20,.2f}'.format)
 pd.set_option('display.max_colwidth', None)
 
 # RAM min percentage of variation (not included)
-MIN_PERCENTAGE = 1
+MIN_PERCENTAGE = 30
 
 def balance_dataset(X, y):    
-    x_df = pd.DataFrame(data=X)
-    y_df = pd.DataFrame(data=y, columns=list('abcde'))    
+    print(y.head())
+    x_df = X
+    x_df.reset_index(drop=True, inplace=True)
+    y_df = pd.DataFrame(data=y.values ,columns=['a','b','c'])
+    y_df.reset_index(drop=True, inplace=True)
 
-    result = pd.concat([x_df, y_df], axis=1)   
-    countClicks(result) 
+    print(x_df.shape, y_df.shape)
+    #print(y_df.head())
 
-    nomove  = result[(result.a == 0) & (result.b == 0) & (result.c == 0) & (result.d == 0) & (result.e == 0)].copy()
-    move    = result[(result.a == 1) | (result.b == 1) | (result.c == 1) | (result.d == 1) | (result.e == 1)].copy()
-    move    = move[((move.index % 2 == 0) | (move.index % 3 == 0)) | (move.a == 1)| (move.b == 1)| (move.c == 1)]
+    #result = pd.concat([x_df, y_df], axis=1)   
+    result = x_df.join(y_df)
+    #print(result.head())
+    #countClicks(result) 
+
+    nomove  = result[(result.iloc[:, -3] == 0) & (result.iloc[:, -2] == 0) & (result.iloc[:, -1] == 0)].copy()
+    move    = result[(result.iloc[:, -3] == 1) | (result.iloc[:, -2] == 1) | (result.iloc[:, -1] == 1)].copy()
+
+    move    = move[((move.index % 5 == 0)) | (move.iloc[:, -3] == 1)]
 
     nomove = nomove[nomove.index % 2 == 0].copy()
     nomove.reset_index(drop=True, inplace=True)
     nomove = nomove[nomove.index % 2 == 0].copy()
+    nomove.reset_index(drop=True, inplace=True)
+    nomove = nomove[nomove.index % 2 == 0].copy()
+    nomove.reset_index(drop=True, inplace=True)
     result = pd.concat([nomove, move])    
     
-    countClicks(result)    
+    #countClicks(result)    
     # heatmap = result.corr(method ='pearson') 
     # heatmap.style.background_gradient(cmap='Blues')
     # sns.heatmap(heatmap, cmap='Blues',
@@ -39,36 +51,39 @@ def balance_dataset(X, y):
     #         yticklabels=heatmap.columns.values)
     # plt.show()
 
-    X_res = result.iloc[:, :-5]    
-    y_res = result.iloc[:, -5:]
+    X_res = result.iloc[:, :-3]    
+    y_res = result.iloc[:, -3:]
 
     return X_res, y_res    
 
 
 def generateRamIndexes(X, minPercentage):
-    # heatMap = np.zeros(X[0].shape[0])
+    # # # # heatMap = np.zeros(X[0].shape[0])
     
-    # for i in range(X.shape[0]):
-    #     for j in range(heatMap.shape[0]):
-    #         if X[i, j] != X[0][j]:
-    #             heatMap[j] += (100.0 / float(X.shape[0]))    
+    # # # # for i in range(X.shape[0]):
+    # # # #     for j in range(heatMap.shape[0]):
+    # # # #         if X[i, j] != X[0][j]:
+    # # # #             heatMap[j] += (100.0 / float(X.shape[0]))    
 
-    # indexes = list()
-    # for i in range(0, heatMap.shape[0], 1):
-    #     if heatMap[i] > minPercentage:
-    #         indexes.append(i)
+    # # # # indexes = list()
+    # # # # for i in range(0, heatMap.shape[0], 1):
+    # # # #     if heatMap[i] > minPercentage:
+    # # # #         indexes.append(i)
     heatMap = []
     df = pd.DataFrame(data=X)
+    print(df.shape)
     for column in df.columns[:]:
         heatMap.append(df[column].nunique())
 
     print('Unique count: ', heatMap)
 
-    indexes = list()
+    indexes = [] #list([16,80,17,18,36,33,81,37,38,34, 35, 111])
     for i in range(len(heatMap)):
         if (heatMap[i]) > minPercentage:
-            indexes.append(i)
+            indexes.append(df.columns[i])
 
+    print('Selected indexes: ')
+    print(indexes)
     indexes = np.asarray(indexes)
     np.savetxt(f"ramindexes.txt", indexes, fmt='%i')
 
@@ -102,15 +117,13 @@ def parseOutputTo1KeyAction(y):
     return y_res
 
 def countClicks(y):
-    nomove      = y[(y.a == 0) & (y.b == 0) & (y.c == 0) & (y.d == 0) & (y.e == 0)].shape[0]
-    up          = y[(y.a == 1)].shape[0]
-    spaceLeft   = y[(y.b == 1)].shape[0]
-    spaceRight  = y[(y.c == 1)].shape[0]
-    left        = y[(y.d == 1)].shape[0]
-    right       = y[(y.e == 1)].shape[0]
+    nomove      = y[(y.iloc[:, 0] == 0) & (y.iloc[:, 1] == 0) & (y.iloc[:, 2] == 0) ].shape[0]
+    up          = y[(y.iloc[:, 0] == 1)].shape[0]
+    left        = y[(y.iloc[:, 1] == 1)].shape[0]
+    right       = y[(y.iloc[:, 2] == 1)].shape[0]
 
-    print('(NOMOVE, \tUP, \tSPACE+LEFT, \tSPACE+RIGHT, \tLEFT, \tRIGHT)') 
-    print(f'(\t{nomove}, \t{up}, \t{spaceLeft}, \t{spaceRight}, \t{left}, \t{right})') 
+    print('(NOMOVE, \tUP,  \tLEFT, \tRIGHT)') 
+    print(f'(\t{nomove}, \t{up}, \t{left}, \t{right})')  
 
 def removeUnusedIndexes(X, indexes):
     if indexes.shape[0] == 0:
@@ -135,25 +148,62 @@ def print_results(X_train, y_train, X_valid, y_valid, X_test, y_test, indexes):
     print(f'X_valid: {X_valid.shape}, y_valid: {y_valid.shape}')
     print(f'X_test: {X_test.shape}, y_test: {y_test.shape}')
     print(f'Indexes shape: {indexes.shape}')
-    print(f'Used indexes: {indexes}')
+    #print(f'Used indexes: {indexes}')
 
 def main():        
     # Load the whole dataset X, y
-    X = np.genfromtxt('x.csv', delimiter=',', dtype=int)
-    y = np.genfromtxt('y.csv', delimiter=',', dtype=int)
+    X = pd.read_csv('x.csv', delimiter=',', names=range(128), dtype=int)
+    y = pd.read_csv('y.csv', delimiter=',', names=range(4), dtype= int)
     
     # Generate the indexes that must be taken into account when training the Net
     indexes = generateRamIndexes(X, MIN_PERCENTAGE)
 
     # Remove unused indexes from dataset (doesn't modify the original files)
-    X = removeUnusedIndexes(X, indexes)
-    y = parseOutputTo1KeyAction(y)
-
+    #X = removeUnusedIndexes(X, indexes)
+    X = X[indexes]
+    print(X.head())
+    print(y.head())
+    #y = parseOutputTo1KeyAction(y)
+    # y = y.drop(columns=[y.columns[1]], axis=1, inplace=False)
+    # y = y.fillna(0)
+    y = y[[0, 2, 3]]
+    countClicks(y)
+    
     X, y = balance_dataset(X, y)
 
+    countClicks(y)
+
     # split dataset into train and test subsets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=517)
-    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2, random_state=517)
+    X_test = X[X.index % 20 == 0].copy()
+    X_test.reset_index(drop=True, inplace=True)
+    X_train = X[X.index % 20 != 0].copy()
+    X_train.reset_index(drop=True, inplace=True)
+
+    y_test = y[y.index % 20 == 0].copy()
+    y_test.reset_index(drop=True, inplace=True)
+    y_train = y[y.index % 20 != 0].copy()
+    y_train.reset_index(drop=True, inplace=True)
+    
+    # Train & Validation
+    X_valid = X_train[X_train.index % 20 == 0].copy()
+    X_valid.reset_index(drop=True, inplace=True)
+    X_train = X_train[X_train.index % 20 != 0].copy()
+    X_train.reset_index(drop=True, inplace=True)
+
+    y_valid = y_train[y_train.index % 20 == 0].copy()
+    y_valid.reset_index(drop=True, inplace=True)
+    y_train = y_train[y_train.index % 20 != 0].copy()
+    y_train.reset_index(drop=True, inplace=True)
+
+    # dfs = np.split(y, [int(y.shape[0] * 0.05)], axis=0)
+    # y_test = dfs[0]
+    # y_train = dfs[1]
+    #X_test, X_train = np.split(X, [X.shape[0] * 0.05], axis=0)
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05, random_state=517)
+    # X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.1, random_state=517)
+
+    print('TRAIN')
+    countClicks(y_train)
 
     # Save dataset
     save_dataset(X_train, y_train, 'train')

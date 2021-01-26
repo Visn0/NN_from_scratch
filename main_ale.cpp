@@ -2,11 +2,11 @@
 #include "net_t.h"
 #include <string.h>
 
-const double REGULARIZATION_LAMBDA  = 0.0001;
-const uint32_t BATCH_SIZE           = 64;
-const int EPOCHS                    = 100;
-const double LEARNING_RATE          = 0.1;
-const int OUTPUT_SIZE               = 5;
+const double REGULARIZATION_LAMBDA  = 0.00001;
+const uint32_t BATCH_SIZE           = 1;
+const int EPOCHS                    = 1000;
+const double LEARNING_RATE          = 0.0001;
+const int OUTPUT_SIZE               = 3;
 uint16_t INPUT_SIZE                 = 0;
 
 void heatMap(const MatDouble_t& data, const double& percentage) 
@@ -146,7 +146,8 @@ void run(int argc, char* argv[])
 
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
-    Net_t net{ INPUT_SIZE, 48, 24, OUTPUT_SIZE };
+    std::cout << "X_train SIZE: " << X_train.size() << std::endl;
+    Net_t net{ INPUT_SIZE, INPUT_SIZE+3, OUTPUT_SIZE };
     
     const double fit = fit_time(net, X_train, y_train, X_valid, y_valid);
 
@@ -155,6 +156,13 @@ void run(int argc, char* argv[])
     std::cout << "### EXECUTION TIMES ###" << std::endl;
     std::cout << "Fit\t\t: " << fit << " s" << std::endl;
     std::cout << "Evaluate\t: " << evaluate << " ms" << std::endl;
+    for(size_t i{0}; i < 5; i++)
+    {
+        print(X_test[i]);
+        print(net.predict(X_test[i]));
+        print(y_test[i]);
+    }
+    
 
     net.save_model("ale_bot.csv");
 }

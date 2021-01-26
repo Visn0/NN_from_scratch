@@ -11,6 +11,8 @@
 #include "net_t.h"
 #include "utils.h"
 
+const double THRESHOLD = 0.5;
+
 Net_t::Net_t(std::initializer_list<uint16_t> const &layers)
 {
     if (layers.size() < 2)
@@ -58,27 +60,27 @@ VecPair_t Net_t::fit(
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
     {
-        print("\n####################################################\n");
-        print("EPOCH:", epoch, "\n");
-        print("####################################################\n");       
+        // print("\n####################################################\n");
+        // print("EPOCH:", epoch, "\n");
+        // print("####################################################\n");       
                                
         for(std::size_t batch = 0; batch < maxBatches; ++batch)
         {        
             std::vector<MatDouble_t> gradients; 
             copySize(gradients, m_layers);            
-            print("gradientes");
+            //print("gradientes");
 
             std::vector<VecDouble_t> outputs; // output through activation function (a)
 
             std::size_t maxExample = batch * batch_size + batch_size;
             for (std::size_t i = batch * batch_size; i < X_train.size() && i < maxExample; ++i) // iterations of train in 1 batch
             {                
-                print("\n#################\n");
-                print("Example", i, "\n");
-                print("~~~~~~~~~~~~~~\n");
+                // print("\n#################\n");
+                // print("Example", i, "\n");
+                // print("~~~~~~~~~~~~~~\n");
 
-                print("NETWORK \n");
-                print(*this, "\n");
+                // print("NETWORK \n");
+                // print(*this, "\n");
                 // if (DEBUG) std::cout << *this << std::endl;
 
                 // Sets the outputs of each neuron of each layer in the outputs variable
@@ -126,7 +128,7 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
         }
     }
 
-    error /= (y[0].size() * y.size());
+    error /= (y.size());
     return error;
 }
 
@@ -313,37 +315,37 @@ void Net_t::backpropagation_without_update_weights(
     , double const &regularization_lambda
 )
 {
-    print("\n~~~~~~~~~~~~~~\n");
-    print("BACKPROPAGATION \n");
-    print("~~~~~~~~~~~~~~\n");
+    // print("\n~~~~~~~~~~~~~~\n");
+    // print("BACKPROPAGATION \n");
+    // print("~~~~~~~~~~~~~~\n");
     const int L = m_layers.size() - 1;
 
     VecDouble_t last_delta = calculate_last_delta(outputs[L], yi);
-    print("Delta", L, "\t\t", last_delta); 
+    //print("Delta", L, "\t\t", last_delta); 
     calculate_gradients(gradients[L], m_layers[L], outputs[L-1], last_delta, regularization_lambda);
     
     for (int l = L - 1; l > 0; --l)
     {
         last_delta = calculate_hidden_delta(outputs[l], m_layers[l+1], last_delta);
-        print("Delta", l, "\t\t", last_delta);                    
+        //print("Delta", l, "\t\t", last_delta);                    
         calculate_gradients(gradients[l], m_layers[l], outputs[l-1], last_delta, regularization_lambda);                    
     }  
 
     // Update weights related to the input layer, whose activation coeficients Xi are the input values.
     last_delta = calculate_hidden_delta(outputs[0], m_layers[1], last_delta);
-    print("Delta", 0, "\t\t", last_delta);
+    // print("Delta", 0, "\t\t", last_delta);
     calculate_gradients(gradients[0], m_layers[0], Xi, last_delta, regularization_lambda);
 }
 
 void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi, VecDouble_t const &yi)
 {    
-    print("\n~~~~~~~~~~~~~~\n");
-    print("FORWARD \n");
-    print("~~~~~~~~~~~~~~\n");
+    // print("\n~~~~~~~~~~~~~~\n");
+    // print("FORWARD \n");
+    // print("~~~~~~~~~~~~~~\n");
 
     VecDouble_t result(Xi);
-    print("Input \t\t", result);
-    print("Expected \t", yi);
+    // print("Input \t\t", result);
+    // print("Expected \t", yi);
 
     for (size_t wi{0}; wi < m_layers.size(); ++wi)
     {
@@ -355,7 +357,7 @@ void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t con
         result = sigmoid(z);
         outputs.push_back(result);
 
-        print("Output", wi, "\t", result);
+        // print("Output", wi, "\t", result);
     }
 }
 
@@ -380,6 +382,11 @@ VecDouble_t Net_t::calculate_last_delta(VecDouble_t const &a, VecDouble_t const 
     VecDouble_t result(a.size(), 0.0);
     for (std::size_t i = 0; i < a.size(); ++i)
     {
+        int res = 0;
+        if(a[i] > THRESHOLD)
+        {
+            res = 1;
+        }
         double deltax = 2 * (a[i] - y[i]) * sigmoid_derivative(a[i]);
         result[i] = deltax;
     }
@@ -411,7 +418,7 @@ void Net_t::calculate_gradients(MatDouble_t &gradients, MatDouble_t &layer, VecD
         // update bias       
         double regularization = 2.0 * lambda * layer[i][0]; 
         gradients[i][0] += delta[i] + regularization;
-        print("--Grad", i, 0, " \t\t", gradients[i][0], "\n");
+        //print("--Grad", i, 0, " \t\t", gradients[i][0], "\n");
 
         // update weights        
         for (std::size_t j = 1; j < layer[0].size(); ++j)
@@ -420,7 +427,7 @@ void Net_t::calculate_gradients(MatDouble_t &gradients, MatDouble_t &layer, VecD
             double grad = a[j - 1] * delta[i] + regularization;
             // layer[i][j] = layer[i][j] - (lr * grad);
             gradients[i][j] += grad;
-            print("--Grad", i, j, " \t\t", grad, "\n");
+            //print("--Grad", i, j, " \t\t", grad, "\n");
         }
     }
 }

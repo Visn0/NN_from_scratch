@@ -101,13 +101,13 @@ void writeRAM(const ALERAM RAM)
 VecDouble_t ram_to_VecDouble(const VecInt_t& indexes) {
    
    VecDouble_t result(indexes.size()); 
-
-   const auto& RAM = alei.getRAM();
-   for(const auto& i: indexes)
-   {
-      result[i] = RAM.get(i);
-   }
    
+   const auto& RAM = alei.getRAM();
+   for(size_t i{0}; i < indexes.size(); ++i)
+   {
+      result[i] = RAM.get(indexes[i]);
+   }
+   print(result);
    return result;
 }
 
@@ -150,70 +150,79 @@ float playBot(const Net_t& bot, int teclas[], VecInt_t const &indexes) {
    // if mayor == up then execute up and check left || right
    // if mayor == spaceLeft || spaceRigh then run it
 
-   std::size_t maxIndex = 0;
-   for(std::size_t i = 1; i < prediction.size(); ++i)
-   {
-      if (prediction[maxIndex] < prediction[i])
-      {
-         maxIndex = i;
-      }
-   }    
+   // std::size_t maxIndex = 0;
+   // for(std::size_t i = 1; i < prediction.size(); ++i)
+   // {
+   //    if (prediction[maxIndex] < prediction[i])
+   //    {
+   //       maxIndex = i;
+   //    }
+   // }    
 
-   if (prediction[maxIndex] > BOT_THRESHOLD)
-   {
-      switch (maxIndex)
-      {
-         case 0:
-            teclas[0] = 1;
-            reward += alei.act(PLAYER_A_UP);
+   // if (prediction[maxIndex] > BOT_THRESHOLD)
+   // {
+   //    switch (maxIndex)
+   //    {
+   //       case 0:
+   //          teclas[0] = 1;
+   //          reward += alei.act(PLAYER_A_UP);
 
-            if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD*1.5)
-            {
-               reward += alei.act(PLAYER_A_LEFT);
-               teclas[2] = 1;
-            }
-            else if (prediction[4] > BOT_THRESHOLD*1.5)
-            {
-               reward += alei.act(PLAYER_A_RIGHT);
-               teclas[3] = 1;
-            }
+   //          if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD)
+   //          {
+   //             reward += alei.act(PLAYER_A_LEFT);
+   //             teclas[2] = 1;
+   //          }
+   //          else if (prediction[2] > BOT_THRESHOLD)
+   //          {
+   //             reward += alei.act(PLAYER_A_RIGHT);
+   //             teclas[3] = 1;
+   //          }
 
-            break;
+   //          break;
 
-         case 1:
-            teclas[1] = 1;
-            teclas[2] = 1;
-            reward += alei.act(PLAYER_A_LEFTFIRE);            
-            break;
+   //       // case 1:
+   //       //    teclas[1] = 1;
+   //       //    teclas[2] = 1;
+   //       //    reward += alei.act(PLAYER_A_LEFTFIRE);            
+   //       //    break;
          
-         case 2:
-            teclas[1] = 1;
-            teclas[3] = 1;
-            reward += alei.act(PLAYER_A_RIGHTFIRE);            
-            break;
+   //       // case 2:
+   //       //    teclas[1] = 1;
+   //       //    teclas[3] = 1;
+   //       //    reward += alei.act(PLAYER_A_RIGHTFIRE);            
+   //       //    break;
 
-         case 3:
-            reward += alei.act(PLAYER_A_LEFT);
-            teclas[2] = 1;
-            break;
+   //       case 1:
+   //          reward += alei.act(PLAYER_A_LEFT);
+   //          teclas[2] = 1;
+   //          break;
 
-         case 4:
-            reward += alei.act(PLAYER_A_RIGHT);
-            teclas[3] = 1;
+   //       case 2:
+   //          reward += alei.act(PLAYER_A_RIGHT);
+   //          teclas[3] = 1;
          
-         default:
-            break;
-      }
-   }
+   //       default:
+   //          break;
+   //    }
+   // }
 
    // FIRE UP
-   // if (prediction[0] > BOT_THRESHOLD)
-   // {
-   //    teclas[0] = 1;
-   //    reward += alei.act(PLAYER_A_UP);
-   // }  
-
-   // FIRE LEFT
+   if (prediction[0] > BOT_THRESHOLD)
+   {
+      teclas[0] = 1;
+      reward += alei.act(PLAYER_A_UP);
+   }  
+   else if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD) // MOVEMENT LEFT
+   {
+      reward += alei.act(PLAYER_A_LEFT);
+      teclas[2] = 1;
+   }
+   else if (prediction[2] > BOT_THRESHOLD) // MOVEMENT RIGHT
+   {
+      reward += alei.act(PLAYER_A_RIGHT);
+      teclas[3] = 1;
+   }
+   // // FIRE LEFT
    // if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD)
    // {
    //    teclas[1] = 1;
@@ -225,19 +234,11 @@ float playBot(const Net_t& bot, int teclas[], VecInt_t const &indexes) {
    //    teclas[1] = 1;
    //    teclas[3] = 1;
    //    reward += alei.act(PLAYER_A_RIGHTFIRE);           
-   // } else if (prediction[3] > prediction[4] && prediction[3] > BOT_THRESHOLD) // MOVEMENT LEFT
-   // {
-   //    reward += alei.act(PLAYER_A_LEFT);
-   //    teclas[2] = 1;
-   // }
-   // else if (prediction[4] > BOT_THRESHOLD) // MOVEMENT RIGHT
-   // {
-   //    reward += alei.act(PLAYER_A_RIGHT);
-   //    teclas[3] = 1;
-   // }
+   // } 
+   
 
-   print(prediction, reward, '\n');  
-   sleep(1);
+   // print(prediction, reward, '\n');  
+   // sleep(1);
    return reward;
 }
 
@@ -305,7 +306,10 @@ float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    if(useBot)
       reward += playBot(bot, teclas, indexes);
    else
+   {
       reward += playManual(teclas);
+      usleep(50000);
+   }
    
    writeTeclas(teclas);
 

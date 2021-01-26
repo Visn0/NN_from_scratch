@@ -21,7 +21,7 @@ using VecPair_t             = std::vector<std::pair<double, double>>;
 using PairMatDouble_t       = std::pair<MatDouble_t, MatDouble_t>;
 using VecPairVecDouble_t    = std::vector<std::pair<VecDouble_t, VecDouble_t>>;
 
-const bool DEBUG = false;
+const bool DEBUG = !false;
 
 
 static double randDouble(double min, double max)

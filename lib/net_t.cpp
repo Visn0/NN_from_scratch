@@ -122,7 +122,18 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     return error;
 }
 
-VecDouble_t Net_t::predict(VecDouble_t const &X) const {    
+VecDouble_t Net_t::predict(VecDouble_t const &X) const 
+{    
+    if (X.size() != (std::size_t) this->input_size)
+        {
+            throw std::out_of_range(
+                "[EXCEPTION]: Invalid input data size. Expected size="
+                + std::to_string(this->input_size)
+                + ", received="
+                + std::to_string(X.size())
+            );
+        }    
+
     return feedforward(X);
 }
 

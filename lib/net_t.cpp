@@ -47,14 +47,14 @@ VecPair_t Net_t::fit(
     , double const &lr
     , uint32_t const& batch_size
     , std::size_t const &epochs
-    , MatDouble_t const &X_test
-    , MatDouble_t const &y_test
+    , MatDouble_t const &X_validation
+    , MatDouble_t const &y_validation
     , uint8_t const &verbose
     , double const &regularization_lambda
 )
 {
     checkDatasetSize(X_train, y_train, "train");
-    checkDatasetSize(X_test, y_test, "test");
+    checkDatasetSize(X_validation, y_validation, "validation");
             
     // Each pair contains <error_train, error_validation> for one epoch.
     // This vector will contain all this pairs sorted by the epoch number from lower to higher.
@@ -84,7 +84,7 @@ VecPair_t Net_t::fit(
         }
     
         const double train_error = evaluate(X_train, y_train);
-        const double test_error  = evaluate(X_test, y_test);
+        const double test_error  = evaluate(X_validation, y_validation);
         history[epoch] = std::make_pair( train_error, test_error ); 
 
         switch (verbose)
@@ -125,14 +125,14 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
 VecDouble_t Net_t::predict(VecDouble_t const &X) const 
 {    
     if (X.size() != (std::size_t) this->input_size)
-        {
-            throw std::out_of_range(
-                "[EXCEPTION]: Invalid input data size. Expected size="
-                + std::to_string(this->input_size)
-                + ", received="
-                + std::to_string(X.size())
-            );
-        }    
+    {
+        throw std::out_of_range(
+            "[EXCEPTION]: Invalid input data size. Expected size="
+            + std::to_string(this->input_size)
+            + ", received="
+            + std::to_string(X.size())
+        );
+    }    
 
     return feedforward(X);
 }

@@ -36,8 +36,8 @@ class Net_t {
             , double const &lr
             , uint32_t const& batch_size
             , std::size_t const &epochs
-            , MatDouble_t const &X_test
-            , MatDouble_t const &y_test
+            , MatDouble_t const &X_validation
+            , MatDouble_t const &y_validation
             , uint8_t const &verbose = 0
             , double const &regularization_lambda = 0.0
         );

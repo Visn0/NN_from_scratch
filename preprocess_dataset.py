@@ -13,7 +13,7 @@ pd.set_option('display.float_format', '{:20,.2f}'.format)
 pd.set_option('display.max_colwidth', None)
 
 # RAM min percentage of variation (not included)
-MIN_PERCENTAGE = 30
+MIN_PERCENTAGE = 0
 
 def balance_dataset(X, y):    
     print(y.head())
@@ -33,7 +33,7 @@ def balance_dataset(X, y):
     nomove  = result[(result.iloc[:, -3] == 0) & (result.iloc[:, -2] == 0) & (result.iloc[:, -1] == 0)].copy()
     move    = result[(result.iloc[:, -3] == 1) | (result.iloc[:, -2] == 1) | (result.iloc[:, -1] == 1)].copy()
 
-    move    = move[((move.index % 5 == 0)) | (move.iloc[:, -3] == 1)]
+    move    = move[((move.index % 2 == 0)) | (move.iloc[:, -3] == 1)]
 
     nomove = nomove[nomove.index % 2 == 0].copy()
     nomove.reset_index(drop=True, inplace=True)
@@ -173,37 +173,45 @@ def main():
 
     countClicks(y)
 
-    # split dataset into train and test subsets
-    X_test = X[X.index % 20 == 0].copy()
-    X_test.reset_index(drop=True, inplace=True)
-    X_train = X[X.index % 20 != 0].copy()
-    X_train.reset_index(drop=True, inplace=True)
+    # # split dataset into train and test subsets
+    # X_test = X[X.index % 20 == 0].copy()
+    # X_test.reset_index(drop=True, inplace=True)
+    # X_train = X[X.index % 20 != 0].copy()
+    # X_train.reset_index(drop=True, inplace=True)
 
-    y_test = y[y.index % 20 == 0].copy()
-    y_test.reset_index(drop=True, inplace=True)
-    y_train = y[y.index % 20 != 0].copy()
-    y_train.reset_index(drop=True, inplace=True)
+    # y_test = y[y.index % 20 == 0].copy()
+    # y_test.reset_index(drop=True, inplace=True)
+    # y_train = y[y.index % 20 != 0].copy()
+    # y_train.reset_index(drop=True, inplace=True)
     
-    # Train & Validation
-    X_valid = X_train[X_train.index % 20 == 0].copy()
-    X_valid.reset_index(drop=True, inplace=True)
-    X_train = X_train[X_train.index % 20 != 0].copy()
-    X_train.reset_index(drop=True, inplace=True)
+    # # Train & Validation
+    # X_valid = X_train[X_train.index % 20 == 0].copy()
+    # X_valid.reset_index(drop=True, inplace=True)
+    # X_train = X_train[X_train.index % 20 != 0].copy()
+    # X_train.reset_index(drop=True, inplace=True)
 
-    y_valid = y_train[y_train.index % 20 == 0].copy()
-    y_valid.reset_index(drop=True, inplace=True)
-    y_train = y_train[y_train.index % 20 != 0].copy()
-    y_train.reset_index(drop=True, inplace=True)
+    # y_valid = y_train[y_train.index % 20 == 0].copy()
+    # y_valid.reset_index(drop=True, inplace=True)
+    # y_train = y_train[y_train.index % 20 != 0].copy()
+    # y_train.reset_index(drop=True, inplace=True)
 
     # dfs = np.split(y, [int(y.shape[0] * 0.05)], axis=0)
     # y_test = dfs[0]
     # y_train = dfs[1]
     #X_test, X_train = np.split(X, [X.shape[0] * 0.05], axis=0)
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05, random_state=517)
-    # X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.1, random_state=517)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.05, random_state=517, stratify=y)
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.1, random_state=517, stratify=y_train)
 
-    print('TRAIN')
+    print('\Train')
     countClicks(y_train)
+
+    print('\nValidation')
+    countClicks(y_valid)
+
+    print('\nTest')
+    countClicks(y_test)
+
+    print("\n")
 
     # Save dataset
     save_dataset(X_train, y_train, 'train')

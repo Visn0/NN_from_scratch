@@ -2,10 +2,10 @@
 #include "net_t.h"
 #include <string.h>
 
-const double REGULARIZATION_LAMBDA  = 0.00001;
-const uint32_t BATCH_SIZE           = 1;
-const int EPOCHS                    = 50;
-const double LEARNING_RATE          = 0.01;
+const double REGULARIZATION_LAMBDA  = 0.001;
+const uint32_t BATCH_SIZE           = 128;
+const int EPOCHS                    = 100;
+const double LEARNING_RATE          = 0.1;
 const int OUTPUT_SIZE               = 3;
 uint16_t INPUT_SIZE                 = 0;
 
@@ -59,7 +59,7 @@ void run(int argc, char* argv[])
     INPUT_SIZE = X_train[0].size();
     std::cout << "INPUT_SIZE: " << INPUT_SIZE << std::endl;
     std::cout << "X_train SIZE: " << X_train.size() << std::endl;
-    Net_t net{ INPUT_SIZE, INPUT_SIZE+3, INPUT_SIZE+5, OUTPUT_SIZE };
+    Net_t net{ INPUT_SIZE, 32, 32, OUTPUT_SIZE };
     
     const double fit_time = net_fit(net, X_train, y_train, X_valid, y_valid);
 

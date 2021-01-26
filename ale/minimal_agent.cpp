@@ -9,7 +9,7 @@
 // Global vars
 const double BOT_THRESHOLD = 0.3;
 const bool USE_BOT = !false;
-const int maxSteps = 100000;
+const int maxSteps = 20000;
 int lastLives;
 float totalReward;
 ALEInterface alei;
@@ -193,7 +193,8 @@ float playBot(const Net_t& bot, int teclas[], VecInt_t const &indexes) {
       teclas[0] = 1;
       reward += alei.act(PLAYER_A_UP);
    }  
-   else if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD) // MOVEMENT LEFT
+   
+   if (prediction[1] > prediction[2] && prediction[1] > BOT_THRESHOLD) // MOVEMENT LEFT
    {
       reward += alei.act(PLAYER_A_LEFT);
       teclas[2] = 1;
@@ -268,7 +269,7 @@ float playManual(int teclas[]) {
 float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    float reward = 0;
 
-   //showRAM();
+   showRAM();
 
    int teclas[4];
    //
@@ -285,7 +286,9 @@ float agentStep(Net_t& bot, bool useBot, const VecInt_t& indexes) {
    writeRAM(RAM);
 
    if(useBot)
+   {
       reward += playBot(bot, teclas, indexes);
+   }
    else
    {
       reward += playManual(teclas);

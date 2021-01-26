@@ -6,7 +6,6 @@
 #include "net_t.h"
 #include <unistd.h>
 
-
 const std::vector<MatDouble_t> bot_weights {
    { // Layer 1
       {0.369897,1.37263,1.42714,1.39157,0.502884,-0.456154,-0.79606,-1.76305,-0.902739,-0.08491,1.2528,-0.0726584,-0.421692,1.34416,-0.647721,0.590214,-0.52028,1.82808,-1.43399,1.47703,-0.0958515,1.20762,0.0880903,0.71363,0.87889},
@@ -47,7 +46,7 @@ const VecInt_t ram_indexes {
 
 // Global vars
 const double BOT_THRESHOLD = 0.3;
-const bool USE_BOT = !false;
+const bool USE_BOT = true;
 const int maxSteps = 20000;
 int lastLives;
 float totalReward;

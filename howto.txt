@@ -21,5 +21,5 @@ Una vez tenemos un bot:
     3. Ponemos en la carpeta de ALE el minimal_agent.cpp.    
     4. Ejecutamos: make
     5. El comando generará el ejecutable ale
-    6. Para ejecutar el programa: ./ale <ruta a la rom assault.bin>
+    6. Para ejecutar el programa: ./C19RETRO.robot <ruta a la rom assault.bin>
 

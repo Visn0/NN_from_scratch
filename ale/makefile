@@ -6,10 +6,10 @@ _OBJ= net_t.o
 OBJ= $(patsubst %,$(LIBDIR)/%,$(_OBJ))
 
 ale: minimal_agent.cpp $(OBJ)
-	$(CC) minimal_agent.cpp $(OBJ) -o ale $(OPTIONS) -I$(INCLUDEDIR) 
+	$(CC) minimal_agent.cpp $(OBJ) -o C19RETRO.robot $(OPTIONS) -I$(INCLUDEDIR) 
 
 $(LIBDIR)/%.o : $(LIBDIR)/%.cpp $(INCLUDEDIR)/%.h
 	$(CC) $(OPTIONS) -c -I$(INCLUDEDIR) -o $@ $<
 
 clean:
-	rm ale $(OBJ)
+	rm C19RETRO.robot $(OBJ)

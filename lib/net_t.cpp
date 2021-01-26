@@ -59,6 +59,7 @@ VecPair_t Net_t::fit(
     // Each pair contains <error_train, error_validation> for one epoch.
     // This vector will contain all this pairs sorted by the epoch number from lower to higher.
     VecPair_t history(epochs);    
+    
     const std::size_t maxBatches = X_train.size() / batch_size + (int)(X_train.size() % batch_size != 0);    
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
@@ -80,7 +81,13 @@ VecPair_t Net_t::fit(
                 backpropagation_without_update_weights(gradients, outputs, X_train[i], y_train[i], regularization_lambda);                                
             }
 
-            update_weights(gradients, lr, batch_size);          
+            // If X_train.size() % batch_size != 0, the last batch, instead of using the batch_size, it uses the amount
+            // of examples taken for the given batch. For example, suppose X_train.size()=100, batch_size=40
+            // The first batch it takes batch_size, since there were enough examples for this batch (40;
+            // The seconds batch used also 40, but the third batch has only 20 examples left, so instead of using again 40,
+            // it uses 20, which is the amount of examples used in the feedforward. 
+            const size_t current_batch_size = maxExample - (batch * batch_size);
+            update_weights(gradients, lr, current_batch_size);          
         }
     
         const double train_error = evaluate(X_train, y_train);

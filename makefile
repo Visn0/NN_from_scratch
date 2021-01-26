@@ -1,5 +1,5 @@
 CC=g++
-OPTIONS= -g -std=c++2a -Wall -pedantic -o3
+OPTIONS= -g -std=c++2a -pedantic -O3
 LIBDIR=lib
 INCLUDEDIR=include
 _OBJ= net_t.o

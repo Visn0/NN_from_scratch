@@ -53,38 +53,28 @@ VecPair_t Net_t::fit(
     , double const &regularization_lambda
 )
 {
-    // history[epoch] = pair(train_error, test_error)
+    checkDatasetSize(X_train, y_train, "train");
+    checkDatasetSize(X_test, y_test, "test");
+            
+    // Each pair contains <error_train, error_validation> for one epoch.
+    // This vector will contain all this pairs sorted by the epoch number from lower to higher.
     VecPair_t history(epochs);    
-    const std::size_t maxBatches = X_train.size() / batch_size + (int)(X_train.size() % batch_size != 0);
-    print("MAX_BATCHES: ", maxBatches, "\n");
+    const std::size_t maxBatches = X_train.size() / batch_size + (int)(X_train.size() % batch_size != 0);    
 
     for (size_t epoch = 0; epoch < epochs; ++epoch)
-    {
-        // print("\n####################################################\n");
-        // print("EPOCH:", epoch, "\n");
-        // print("####################################################\n");       
-                               
+    {                                    
         for(std::size_t batch = 0; batch < maxBatches; ++batch)
         {        
             std::vector<MatDouble_t> gradients; 
-            copySize(gradients, m_layers);            
-            //print("gradientes");
+            copySize(gradients, m_layers);    
 
             std::vector<VecDouble_t> outputs; // output through activation function (a)
 
             std::size_t maxExample = batch * batch_size + batch_size;
             for (std::size_t i = batch * batch_size; i < X_train.size() && i < maxExample; ++i) // iterations of train in 1 batch
-            {                
-                // print("\n#################\n");
-                // print("Example", i, "\n");
-                // print("~~~~~~~~~~~~~~\n");
-
-                // print("NETWORK \n");
-                // print(*this, "\n");
-                // if (DEBUG) std::cout << *this << std::endl;
-
+            {                                
                 // Sets the outputs of each neuron of each layer in the outputs variable
-                feedforward_train(outputs, X_train[i], y_train[i]);
+                feedforward_train(outputs, X_train[i]);
 
                 // Sets acumulations of the gradients for all weight in the Neural Network for the given example Xi, yi
                 backpropagation_without_update_weights(gradients, outputs, X_train[i], y_train[i], regularization_lambda);                                
@@ -132,14 +122,7 @@ double Net_t::evaluate(MatDouble_t const &X, MatDouble_t const &y)
     return error;
 }
 
-VecDouble_t Net_t::predict(VecDouble_t const &X) const {
-    // MatDouble_t results;
-
-    // for(const auto& v: X) 
-    // {
-    //     results.push_back( feedforward(v) );
-    // }
-
+VecDouble_t Net_t::predict(VecDouble_t const &X) const {    
     return feedforward(X);
 }
 
@@ -237,8 +220,7 @@ void Net_t::load_model(std::string const &filename) {
 }
 
 void Net_t::printArchitecture() const
-{
-    
+{    
     std::cout << "Architecture: { " << this->input_size;
     
     for(std::size_t layer = 0; layer < m_layers.size(); ++layer) {
@@ -337,15 +319,9 @@ void Net_t::backpropagation_without_update_weights(
     calculate_gradients(gradients[0], m_layers[0], Xi, last_delta, regularization_lambda);
 }
 
-void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi, VecDouble_t const &yi)
+void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi)
 {    
-    // print("\n~~~~~~~~~~~~~~\n");
-    // print("FORWARD \n");
-    // print("~~~~~~~~~~~~~~\n");
-
     VecDouble_t result(Xi);
-    // print("Input \t\t", result);
-    // print("Expected \t", yi);
 
     for (size_t wi{0}; wi < m_layers.size(); ++wi)
     {
@@ -356,8 +332,6 @@ void Net_t::feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t con
         VecDouble_t z = multiplyT(result, m_layers[wi]);
         result = sigmoid(z);
         outputs.push_back(result);
-
-        // print("Output", wi, "\t", result);
     }
 }
 
@@ -450,27 +424,36 @@ void Net_t::update_weights(std::vector<MatDouble_t> const &gradients, double con
     }
 }
 
-bool Net_t::checksize(int a, int b)
+void Net_t::checkDatasetSize(MatDouble_t const &X, MatDouble_t const &y, std::string const &tag) const
 {
-    if (a != b)
-    {        
-        throw std::runtime_error("Different size!!");
-        return false;
-    }
-
-    return true;
-}
-
-void Net_t::addVecDouble_t(VecDouble_t& a, VecDouble_t const &b)
-{
-    if (a.size() !=  b.size()) {
-        print("NO SON IGUALES: a=", a.size(), " b=", b.size());
-        exit(1);
-    }
-
-    for(std::size_t i = 0; i < a.size(); ++i)
+    for (const auto& xi : X)
     {
-        a[i] += b[i];
+        if (xi.size() != (std::size_t) this->input_size)
+        {
+            throw std::out_of_range(
+                "[EXCEPTION]: Invalid input " + tag + " data size. Expected size="
+                + std::to_string(this->input_size)
+                + ", received="
+                + std::to_string(xi.size())
+            );
+        }
+    }
+        
+    // Size of the output layer
+    static const std::size_t output_size = m_layers[ m_layers.size() - 1 ].size() ;
+
+    for (const auto& yi : y)
+    {
+        if (yi.size() != output_size)
+        {
+            throw std::out_of_range(
+                "[EXCEPTION]: Invalid label " + tag + " data size. Expected size="
+                + std::to_string(output_size)
+                + ", received="
+                + std::to_string(yi.size())
+            );
+        }
     }
 }
+
 // ######################## END AUXILIAR METHODS ########################

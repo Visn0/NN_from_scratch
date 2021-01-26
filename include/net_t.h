@@ -54,14 +54,19 @@ class Net_t {
         //  LayerNumber NumberOfParamsInTheSignal,wij,wi+1j,wi+nj
         void save_model(std::string const &filename) const;
 
+        // Load the model with format specified by the function save_model(std::string const &filename)
         void load_model(std::string const &filename);
 
+        // Prints in the standard output the net architecture with the following format:
+        // Architecture: { 4 2 3 1}
+        // In that example, the net input layer has 4 neurons, 2 hidden layers with 2 and 3 neurones each, and 1 neuron in the output layer
         void printArchitecture() const;
 
     private:
         // Neural Network architecture
         std::vector<MatDouble_t> m_layers;
 
+        // Size of the input layer
         std::uint16_t input_size;
         
         // ######################## BEGIN AUXILIAR METHODS ########################
@@ -87,10 +92,13 @@ class Net_t {
             , double const &regularization_lambda
         );
 
-        void feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi, VecDouble_t const &yi);
+        // Feeds the network forward, applying the activation function to the corresponding signals Sj
+        //  Xi: input example
+        //  outputs: results of activation(Signal j) for all neurons and layers.
+        void feedforward_train(std::vector<VecDouble_t>& outputs, VecDouble_t const &Xi);
 
         // Feeds the network forward, applying the activation function to the corresponding signals Sj
-        //  x: input dataset
+        //  x: input example
         VecDouble_t feedforward(VecDouble_t const &x) const;
 
         // Calculates delta for last layer (output layer)
@@ -117,10 +125,10 @@ class Net_t {
         //  learning_rate: learning rate used for training
         void update_weights(std::vector<MatDouble_t> const &gradients, double const &lr, uint32_t const& batch_size);         
 
-        void addVecDouble_t(VecDouble_t& a, VecDouble_t const &b);
-
-        // Returns true if (a == b), throws Exception otherwise.
-        bool checksize(int a, int b);
+        // Check that the size of each example in X corresponds to the input size of the net and the size of each example in y 
+        // corresponds to the output size of the net.
+        // Tag is just used for the message given by the exception.
+        void checkDatasetSize(MatDouble_t const &X, MatDouble_t const &y, std::string const &tag) const;
 
         // ######################## END AUXILIAR METHODS ########################        
 

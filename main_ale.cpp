@@ -3,88 +3,11 @@
 #include <string.h>
 
 const double REGULARIZATION_LAMBDA  = 0.00001;
-const uint32_t BATCH_SIZE           = 1;
+const uint32_t BATCH_SIZE           = 512;
 const int EPOCHS                    = 1000;
-const double LEARNING_RATE          = 0.0001;
+const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 3;
 uint16_t INPUT_SIZE                 = 0;
-
-void heatMap(const MatDouble_t& data, const double& percentage) 
-{
-    // Initialize heat map
-    VecDouble_t heat(data[0].size(), 0.0);
-        
-    // Calculate % of times that a memory address changes
-    for(const auto& v: data)
-    {
-        for(std::size_t i = 0; i < heat.size(); ++i)
-        {
-            if (v[i] != data[0][i]) // ExampleData[i] != initialData[i]
-            {
-                heat[i] += (100.0/data.size());
-            }
-        }
-    }
-
-    uint8_t add = 0;
-    std::printf("\n===================== HEAT MAP =====================");
-    std::printf("\nAD | 000 001 002 003 004 005 006 007 008 009 00A 00B 00C 00D 00E 00F");
-    std::printf("\n====================================================");
-    for (std::size_t i = 0; i < 8; i++)
-    {
-        std::printf("\n%02X | ", add);
-        for (std::size_t j = 0; j < 16; j++, add++)
-        {
-            std::printf("%03.0f ", heat[add]);
-        }
-    }
-    std::printf("\n====================================================\n");
-
-    VecInt_t indexes;
-    std::cout << "Changing indexes: ( ";        
-    for(std::size_t i = 0; i < heat.size(); ++i)
-    {
-        if (heat[i] > percentage)
-        {            
-            indexes.push_back(i);
-            std::cout << i << " ";
-        }
-    }
-    std::cout << ")" << std::endl;
-    std::cout << std::endl << "TOTAL: " << indexes.size() << std::endl;
-
-    vecInt_to_txt("ramindexes.txt", indexes);
-}
-
-void countClicks(const MatDouble_t& steps) {
-    //
-    // 0 - UP
-    // 1 - SPACE
-    // 2 - LEFT
-    // 3 - RIGHT    
-    //
-    if (!DEBUG) return;
-
-    VecDouble_t counters(4);
-    int clickCounter = 0;
-    for(const auto& step: steps) {
-        int clicksOnStep = 0;
-
-        for(std::size_t key = 0; key < step.size(); ++key) {
-            counters[key] += step[key]; // step[key] is always 0 or 1.
-            clicksOnStep += step[key];
-        }      
-
-        clickCounter += ((clicksOnStep > 0) ? 1 : 0);        
-    }
-
-    print("\n## begin CLICK COUNTERS\n");
-    print("TOTAL examples: " + std::to_string(steps.size()) + "\n");
-    print("Examples with click: " + std::to_string(clickCounter) + "\n");
-    print("(UP, SPACE, LEFT, RIGHT)\n");
-    print(counters);
-    print("## end CLICK COUNTERS \n");
-}
 
 PairMatDouble_t readDataset(const std::string& X_filename, const std::string& y_filename)
 {

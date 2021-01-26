@@ -27,25 +27,6 @@ int getBallX() {
 
 void cls() { std::printf("\033[2J"); }
 
-/*
-double hex2dec(double hexd)
-{
-   std::string hex = std::to_string(hexd);
-    unsigned long result = 0;
-    for (int i=0; i<hex.length(); i++) {
-        if (hex[i]>=48 && hex[i]<=57)
-        {
-            result += (hex[i]-48)*pow(16,hex.length()-i-1);
-        } else if (hex[i]>=65 && hex[i]<=70) {
-            result += (hex[i]-55)*pow(16,hex.length( )-i-1);
-        } else if (hex[i]>=97 && hex[i]<=102) {
-            result += (hex[i]-87)*pow(16,hex.length()-i-1);
-        }
-    }
-    return result;
-}
-*/
-
 void showRAM()
 {
    const auto& RAM = alei.getRAM();
@@ -107,7 +88,7 @@ VecDouble_t ram_to_VecDouble(const VecInt_t& indexes) {
    {
       result[i] = RAM.get(indexes[i]);
    }
-   print(result);
+   
    return result;
 }
 

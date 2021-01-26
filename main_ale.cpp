@@ -3,9 +3,9 @@
 #include <string.h>
 
 const double REGULARIZATION_LAMBDA  = 0.001;
-const uint32_t BATCH_SIZE           = 96;
-const int EPOCHS                    = 50;
-const double LEARNING_RATE          = 0.1;
+const uint32_t BATCH_SIZE           = 72;
+const int EPOCHS                    = 200;
+const double LEARNING_RATE          = 0.01;
 const int OUTPUT_SIZE               = 3;
 uint16_t INPUT_SIZE                 = 0;
 

@@ -13,7 +13,7 @@ pd.set_option('display.float_format', '{:20,.2f}'.format)
 pd.set_option('display.max_colwidth', None)
 
 # RAM min percentage of variation (not included)
-MIN_PERCENTAGE = 0
+MIN_PERCENTAGE = 1
 
 def balance_dataset(X, y):    
     print(y.head())
